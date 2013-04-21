@@ -38,46 +38,62 @@
   </head>
 
   <body>
-    <div class="container-fluid">
+    <div class="container">
       <div class="page-header">
         <h1> Классификатор </h1>
       </div>
       <div class="row-fluid">
         <div class="span3">
-          <form>
+          <form class="form">
             <legend>Настройки</legend>
-            <label for="opModel">Модель операторов</label>
-            <select id="opModel">
-              <option>Линейная</option>
-              <option>Байесовская</option>
-              <option>Сравнение с эталоном</option>
-              <option>K ближайших соседей</option>
-              <option>Парзеновское окно</option>
-              <option>Потенциальные функции</option>
-              <option>Общий метрический алгоритм</option>
-              <option>Алгоритм вычисления оценок</option>
-              <option>Нейросети</option>
-              <option>Решающие деревья</option>
-            </select>
-            <label for="corrOp">Корректирующая операция</label>
-            <select id="corrOp">
-              <option>Линейная</option>
-              <option>Настоящая линейная</option>
-              <option>Выбор независимого оптимума</option>
-              <option>Выбор зависимого оптимума</option>
-              <option>Комитет старшинства с индивидуальными классами</option>
-              <option>Комитет старшинства с наборами классов</option>
-              <option>Комитет большинства</option>
-              <option>Решающее дерево</option>
-            </select>
-            <label for="colorMode">Режим раскраски</label>
-            <select id="colorMode" disabled>
-              <option>Не нужен</option>
-            </select>
-            <label for="workMode">Режим работы</label>
-            <select id="workMode" disabled>
-              <option>Не нужен</option>
-            </select>
+            <div class="control-group">
+              <label class="control-label" for="opModel">Модель операторов</label>
+              <div class="controls">
+                <select id="opModel">
+                  <option>Линейная</option>
+                  <option>Байесовская</option>
+                  <option>Сравнение с эталоном</option>
+                  <option>K ближайших соседей</option>
+                  <option>Парзеновское окно</option>
+                  <option>Потенциальные функции</option>
+                  <option>Общий метрический алгоритм</option>
+                  <option>Алгоритм вычисления оценок</option>
+                  <option>Нейросети</option>
+                  <option>Решающие деревья</option>
+                </select>
+              </div>
+            </div>
+            <div class="control-group">
+              <label class="control-label" for="corrOp">Корректирующая операция</label>
+              <div class="controls">
+                <select id="corrOp">
+                  <option>Линейная</option>
+                  <option>Настоящая линейная</option>
+                  <option>Выбор независимого оптимума</option>
+                  <option>Выбор зависимого оптимума</option>
+                  <option>Комитет старшинства с индивидуальными классами</option>
+                  <option>Комитет старшинства с наборами классов</option>
+                  <option>Комитет большинства</option>
+                  <option>Решающее дерево</option>
+                </select>
+              </div>
+            </div>
+            <div class="control-group">
+              <label class="control-label" for="colorMode">Режим раскраски</label>
+              <div class="controls">
+                <select id="colorMode" disabled>
+                  <option>Не нужен</option>
+                </select>
+              </div>
+            </div>
+            <div class="control-group">
+              <label class="control-label" for="workMode">Режим работы</label>
+              <div class="controls">
+                <select id="workMode" disabled>
+                  <option>Не нужен</option>
+                </select>
+              </div>
+            </div>
           </form>
         </div> <!-- /div left -->
         <div class="span6">
@@ -90,6 +106,7 @@
           <legend>Информация</legend>
           <h4>Байесовская модель операторов</h4>
           Бла-бла-бла про байесовскую модель операторов.
+          $$ \Gamma_j = -\ln \frac{d(S, S^j)}{r_j} $$
           <h4>Линейная корректирующая операция</h4>
           Бла-бла-бла про линейную корректирующую операцию.
         </div> <!-- /div right -->
@@ -98,6 +115,7 @@
     <!-- Le javascript -->
     <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
     <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script src="js/main.js"></script>
   </body>
 </html>
