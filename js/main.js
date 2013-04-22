@@ -23,7 +23,7 @@ function btnRandom_do() {
 
 function parseInput(text) {
   var comment = /^\s*(?:\/\/.*)?$/;
-  var object = /^\s*(\S+)\s+(\S+)\s+(\S+)\s+([01]+)\s*$/;
+  var object = /^\s*(\S+)\s+(\S+)\s+(\S+)\s+([01])\s*$/;
   var lines = text.split("\n");
   var data = Array();
   for (var i=0; i<lines.length; ++i) {
@@ -35,7 +35,7 @@ function parseInput(text) {
       match[1] = +match[1];
       match[2] = +match[2];
       match[4] = +match[4];
-      if (match[1] != NaN && match[2] != NaN) {
+      if (!isNaN(match[1]) && !isNaN(match[2])) {
         data.push({
           line: i,
           valid: true,
@@ -54,7 +54,7 @@ function parseInput(text) {
       data.push({
         line: i,
         valid: false,
-        text: line
+        text: lines[i]
       });
     }
   }
@@ -161,8 +161,9 @@ function drawVisual(data, viewport) {
 
     // Points
     svg.selectAll(".dot")
-    .data(data).enter()
-    .append("path")
+    .filter(function(d) { return d.valid; })
+    .data(data)
+    .enter().append("path")
     .attr("class", "dot")
     .attr("transform", function(d) { return "translate(" + x(d.x) + "," + y(d.y) + ")"; })
     .attr("d", d3.svg.symbol()
@@ -193,6 +194,36 @@ function drawVisual(data, viewport) {
     .text(function(d) { return d; });
 }
 
+function drawObjTable(data) {
+  var table = d3.select("#objTable tbody");
+  
+  var object = table.selectAll(".object").data(data);
+
+  object.enter().append("tr")
+    .attr("class", "object");
+
+  object.each(function(d) {
+    var object = d3.select(this),
+        line = d.line + 1;
+    if (d.valid)
+      object
+        .classed("error", false)
+        .html("<td>" + line + "</td>"
+          + "<td>" + d.x + "</td>"
+          + "<td>" + d.y + "</td>"
+          + "<td>" + d.c + "</td>"
+          + "<td>" + d.t + "</td>");
+    else
+      object
+        .classed("error", true)
+        .html("<td>" + line + "</td>"
+          + "<td colspan=4><span class=\"label label-important\">Синтаксическая ошибка</span>" 
+          + "<pre>" + d.text + "</pre></td>");
+  });
+
+  object.exit().remove();
+}
+
 function updateViewport() {
   var viewport = $("#viewport")[0];
   fullSize = $(viewport).parent().width();
@@ -217,5 +248,6 @@ $("#inputData").keyup(function() {
 $("#inputData").change(function() {
   pracData = parseInput($("#inputData").val());
   drawVisual(pracData, $("#viewport")[0]);
+  drawObjTable(pracData);
 });
 //$(window).resize(updateViewport);
