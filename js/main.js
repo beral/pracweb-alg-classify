@@ -212,7 +212,7 @@ function drawObjTable(data) {
           + "<td>" + d.x + "</td>"
           + "<td>" + d.y + "</td>"
           + "<td>" + d.c + "</td>"
-          + "<td>" + d.t + "</td>");
+          + "<td>" + (d.t? "<i class=\"icon-ok\"></i>" : "") + "</td>");
     else
       object
         .classed("error", true)
