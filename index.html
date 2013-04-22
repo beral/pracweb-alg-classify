@@ -95,25 +95,23 @@
               </div>
             </div>
           </form>
+          <div>
+            <legend>Входные данные</legend>
+            <div class="btn-group">
+              <button id="btnRandom" class="btn btn-mini" onclick="btnRandom_do()">
+                <i class="icon-refresh"></i>Случайно
+              </button>
+              <button id="btnClear" class="btn btn-mini" onclick="btnClear_do()">
+                <i class="icon-trash"></i>Очистить
+              </button>
+            </div>
+            <textarea id="inputData" class="span12" rows="10"></textarea>
+          </div>
         </div> <!-- /div left -->
         <div class="span6">
           <div class="well">
             <svg id="viewport">
             </svg>
-          </div>
-          <div class="control-group">
-            <label class="control-label" for="inputData">
-              Входной файл:
-              <div class="btn-group pull-right">
-                <button id="btnRandom" class="btn btn-mini" onclick="btnRandom_do()">
-                  <i class="icon-refresh"></i>Случайный
-                </button>
-                <button id="btnClear" class="btn btn-mini" onclick="btnClear_do()">
-                  <i class="icon-trash"></i>Очистить
-                </button>
-              </div>
-            </label>            
-            <textarea id="inputData" class="span12" rows="10"></textarea>
           </div>
         </div> <!-- /div central -->
         <div class="span3">
@@ -127,9 +125,14 @@
       </div>
     </div> <!-- /container -->
     <!-- Le javascript -->
+    <!-- 
+    <script src="js/jquery.js"></script>
+    <script src="js/d3.js"></script>
+    <script src="js/MathJax.js"></script> -->
     <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
     <script src="http://d3js.org/d3.v3.min.js"></script>
     <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script src="js/bootstrap.min.js"></script>
     <script src="js/main.js"></script>
   </body>
 </html>

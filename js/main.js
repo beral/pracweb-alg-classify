@@ -30,18 +30,32 @@ function parseInput(text) {
     if (comment.test(lines[i]))
       continue;
     var match = object.exec(lines[i]);
+    var broken = false;
     if (match) {
       match[1] = +match[1];
       match[2] = +match[2];
       match[4] = +match[4];
       if (match[1] != NaN && match[2] != NaN) {
         data.push({
+          line: i,
+          valid: true,
           x: match[1],
           y: match[2],
           c: match[3],
           t: match[4]
         });
       }
+      else
+        broken = true;
+    } // if (match)
+    else
+      broken = true;
+    if (broken) {
+      data.push({
+        line: i,
+        valid: false,
+        text: line
+      });
     }
   }
   return data;
@@ -52,7 +66,7 @@ function generateData() {
   var data = new Array();
   var gen1 = d3.random.normal(10, 5);
   var gen2 = d3.random.normal(20, 7);
-  var gen3 = d3.random.normal(20, 5);
+  var gen3 = d3.random.normal(25, 5);
   var gen4 = d3.random.normal(5, 30);
   for (var i=0; i<25; ++i) {
     data.push({x: gen1(), 
@@ -67,6 +81,22 @@ function generateData() {
         t: Math.random() > 0.6});
   }
   return data;
+}
+
+function smartExtent(data, accessor) {
+  if (!data.length)
+    return [0, 1];
+  if (data.length == 1)
+  {
+    var d = accessor(data[0]);
+    return [d-1, d+1];
+  }
+  var extent = d3.extent(data, accessor);
+  var med = (extent[0] + extent[1]) / 2;
+  var delta = 0.1 * (med - extent[0]);
+  extent[0] -= delta;
+  extent[1] += delta;
+  return extent;
 }
 
 function drawVisual(data, viewport) {
@@ -96,8 +126,8 @@ function drawVisual(data, viewport) {
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-  x.domain(d3.extent(data, function(d) { return d.x; })).nice();
-  y.domain(d3.extent(data, function(d) { return d.y; })).nice();
+  x.domain(smartExtent(data, function(d) { return d.x; })).nice();
+  y.domain(smartExtent(data, function(d) { return d.y; })).nice();
 
   // X axis
   svg.selectAll("#xAxis")
@@ -137,7 +167,7 @@ function drawVisual(data, viewport) {
     .attr("transform", function(d) { return "translate(" + x(d.x) + "," + y(d.y) + ")"; })
     .attr("d", d3.svg.symbol()
         .type(function(d) { return d.t? "triangle-up" : "circle"; })
-        .size(function(d) { return d.t? 150 : 50; }))
+        .size(50))
     .style("fill", function(d) { return color(d.c); });
 
   // Legend
