@@ -21,6 +21,21 @@ function btnRandom_do() {
   $input.change();
 }
 
+function btnSubmit_do() {
+  request = {
+    data: pracData
+      .filter(function(d) { return d.valid; })
+      .map(function(d) { return {x: d.x, y: d.y, c: d.c, t: d.t}; }),
+    params: {
+      model: $("#opModel").val(),
+      corr_op: $("#corrOp").val(),
+    }
+  };
+
+  // TODO
+  console.log(JSON.stringify(request));
+}
+
 function parseInput(text) {
   var comment = /^\s*(?:\/\/.*)?$/;
   var object = /^\s*(\S+)\s+(\S+)\s+(\S+)\s+([01])\s*$/;

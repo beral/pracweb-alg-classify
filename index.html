@@ -54,16 +54,16 @@
               <label class="control-label" for="opModel">Модель операторов</label>
               <div class="controls">
                 <select id="opModel">
-                  <option>Линейная</option>
-                  <option>Байесовская</option>
-                  <option>Сравнение с эталоном</option>
-                  <option>K ближайших соседей</option>
-                  <option>Парзеновское окно</option>
-                  <option>Потенциальные функции</option>
-                  <option>Общий метрический алгоритм</option>
-                  <option>Алгоритм вычисления оценок</option>
-                  <option>Нейросети</option>
-                  <option>Решающие деревья</option>
+                  <option value="linear">Линейная</option>
+                  <option value="bayes">Байесовская</option>
+                  <option value="sample">Сравнение с эталоном</option>
+                  <option value="knn">K ближайших соседей</option>
+                  <option value="parzen">Парзеновское окно</option>
+                  <option value="potential">Потенциальные функции</option>
+                  <option value="metric">Общий метрический алгоритм</option>
+                  <option value="scoring">Алгоритм вычисления оценок</option>
+                  <option value="neural">Нейросети</option>
+                  <option value="decisiontree">Решающие деревья</option>
                 </select>
               </div>
             </div>
@@ -71,14 +71,14 @@
               <label class="control-label" for="corrOp">Корректирующая операция</label>
               <div class="controls">
                 <select id="corrOp">
-                  <option>Линейная</option>
-                  <option>Настоящая линейная</option>
-                  <option>Выбор независимого оптимума</option>
-                  <option>Выбор зависимого оптимума</option>
-                  <option>Комитет старшинства с индивидуальными классами</option>
-                  <option>Комитет старшинства с наборами классов</option>
-                  <option>Комитет большинства</option>
-                  <option>Решающее дерево</option>
+                  <option value="linear">Линейная</option>
+                  <option value="true_linear">Настоящая линейная</option>
+                  <option value="indep_opt">Выбор независимого оптимума</option>
+                  <option value="dep_opt">Выбор зависимого оптимума</option>
+                  <option value="priority_individual">Комитет старшинства с индивидуальными классами</option>
+                  <option value="priority_sets">Комитет старшинства с наборами классов</option>
+                  <option value="voting">Комитет большинства</option>
+                  <option value="decisiontree">Решающее дерево</option>
                 </select>
               </div>
             </div>
@@ -98,6 +98,11 @@
                 </select>
               </div>
             </div>
+            <button 
+              class="btn btn-large btn-block btn-primary" 
+              type="button"
+              id="btnSubmit"
+              onclick="btnSubmit_do()">Пуск!</button>
           </form>
           <div>
             <legend>Входные данные</legend>
