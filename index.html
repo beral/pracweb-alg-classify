@@ -105,8 +105,12 @@
             <label class="control-label" for="inputData">
               Входной файл:
               <div class="btn-group pull-right">
-                <button class="btn btn-mini"><i class="icon-refresh"></i>Случайный</button>
-                <button class="btn btn-mini"><i class="icon-trash"></i>Очистить</button>
+                <button id="btnRandom" class="btn btn-mini" onclick="btnRandom_do()">
+                  <i class="icon-refresh"></i>Случайный
+                </button>
+                <button id="btnClear" class="btn btn-mini" onclick="btnClear_do()">
+                  <i class="icon-trash"></i>Очистить
+                </button>
               </div>
             </label>            
             <textarea id="inputData" class="span12" rows="10"></textarea>

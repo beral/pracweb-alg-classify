@@ -1,4 +1,51 @@
-// vim: et sw=2
+// vim: et si sw=2
+
+function btnClear_do() {
+  var $input = $("#inputData");
+  $input.val("");
+  $input.change();
+}
+
+function btnRandom_do() {
+  var $input = $("#inputData");
+  var text = "";
+  var data = generateData();
+  for (var i=0; i<data.length; ++i) {
+    var item = data[i];
+    text += item.x.toFixed(1) + " " 
+          + item.y.toFixed(1) + " " 
+          + item.c + " " 
+          + (item.t?1:0) + "\n";
+  }
+  $input.val(text);
+  $input.change();
+}
+
+function parseInput(text) {
+  var comment = /^\s*(?:\/\/.*)?$/;
+  var object = /^\s*(\S+)\s+(\S+)\s+(\S+)\s+([01]+)\s*$/;
+  var lines = text.split("\n");
+  var data = Array();
+  for (var i=0; i<lines.length; ++i) {
+    if (comment.test(lines[i]))
+      continue;
+    var match = object.exec(lines[i]);
+    if (match) {
+      match[1] = +match[1];
+      match[2] = +match[2];
+      match[4] = +match[4];
+      if (match[1] != NaN && match[2] != NaN) {
+        data.push({
+          x: match[1],
+          y: match[2],
+          c: match[3],
+          t: match[4]
+        });
+      }
+    }
+  }
+  return data;
+}
 
 // STUB: generate a random data set
 function generateData() {
@@ -10,13 +57,13 @@ function generateData() {
   for (var i=0; i<25; ++i) {
     data.push({x: gen1(), 
         y: gen2(), 
-        c: "Class A",
+        c: "first",
         t: Math.random() > 0.7});
   }
   for (var i=0; i<25; ++i) {
     data.push({x: gen3(), 
         y: gen4(), 
-        c: "Class B",
+        c: "second",
         t: Math.random() > 0.6});
   }
   return data;
@@ -53,7 +100,10 @@ function drawVisual(data, viewport) {
   y.domain(d3.extent(data, function(d) { return d.y; })).nice();
 
   // X axis
-  svg.append("g")
+  svg.selectAll("#xAxis")
+    .data([width]).enter()
+    .append("g")
+    .attr("id", "xAxis")
     .attr("class", "x axis")
     .attr("transform", "translate(0," + height + ")")
     .call(xAxis)
@@ -65,7 +115,10 @@ function drawVisual(data, viewport) {
     .text("X");
 
   // Y axis
-  svg.append("g")
+  svg.selectAll("#yAxis")
+    .data([height]).enter()
+    .append("g")
+    .attr("id", "yAxis")
     .attr("class", "y axis")
     .call(yAxis)
     .append("text")
@@ -78,8 +131,8 @@ function drawVisual(data, viewport) {
 
     // Points
     svg.selectAll(".dot")
-    .data(data)
-    .enter().append("path")
+    .data(data).enter()
+    .append("path")
     .attr("class", "dot")
     .attr("transform", function(d) { return "translate(" + x(d.x) + "," + y(d.y) + ")"; })
     .attr("d", d3.svg.symbol()
@@ -121,8 +174,18 @@ function updateViewport() {
 
 
 // Achtung: global variables!
-var pracData = generateData();
+var pracData = [];
 
 // Initialization
-$(window).load(updateViewport);
-$(window).resize(updateViewport);
+$(window).load(function() {
+  updateViewport();
+  $("#inputData").change();
+});
+$("#inputData").keyup(function() {
+  $("#inputData").change();
+});
+$("#inputData").change(function() {
+  pracData = parseInput($("#inputData").val());
+  drawVisual(pracData, $("#viewport")[0]);
+});
+//$(window).resize(updateViewport);
