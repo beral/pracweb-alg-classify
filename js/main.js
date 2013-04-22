@@ -102,6 +102,8 @@ function smartExtent(data, accessor) {
 function drawVisual(data, viewport) {
   $(viewport).empty();
 
+  data = data.filter(function(d) { return d.valid; });
+
   var margin = {top: 20, right: 20, bottom: 30, left: 40},
       width = $(viewport).width() - margin.left - margin.right,
       height = $(viewport).height() - margin.top - margin.bottom;
@@ -114,56 +116,22 @@ function drawVisual(data, viewport) {
 
   var color = d3.scale.category10();
 
-  var xAxis = d3.svg.axis()
-    .scale(x)
-    .orient("bottom");
-
-  var yAxis = d3.svg.axis()
-    .scale(y)
-    .orient("left");
-
-  var svg = d3.select(viewport)
-    .append("g")
+  var svg = d3.select("#viewport").append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
   x.domain(smartExtent(data, function(d) { return d.x; })).nice();
   y.domain(smartExtent(data, function(d) { return d.y; })).nice();
 
-  // X axis
-  svg.selectAll("#xAxis")
-    .data([width]).enter()
-    .append("g")
-    .attr("id", "xAxis")
-    .attr("class", "x axis")
-    .attr("transform", "translate(0," + height + ")")
-    .call(xAxis)
-    .append("text")
-    .attr("class", "label")
-    .attr("x", width)
-    .attr("y", -6)
-    .style("text-anchor", "end")
-    .text("X");
+  drawAxes(data, svg, x, y, color, width, height);
+  drawObjects(data, svg, x, y, color, width, height);
+  drawLegend(data, svg, x, y, color, width, height);
+}
 
-  // Y axis
-  svg.selectAll("#yAxis")
-    .data([height]).enter()
-    .append("g")
-    .attr("id", "yAxis")
-    .attr("class", "y axis")
-    .call(yAxis)
-    .append("text")
-    .attr("class", "label")
-    .attr("transform", "rotate(-90)")
-    .attr("y", 6)
-    .attr("dy", ".71em")
-    .style("text-anchor", "end")
-    .text("Y")
+function drawObjects(data, view, x, y, color, width, height) {
+  var object = view.selectAll(".dot").data(data, function(d) { return [d.line, d.c, d.t]; });
 
-    // Points
-    svg.selectAll(".dot")
-    .filter(function(d) { return d.valid; })
-    .data(data)
-    .enter().append("path")
+  object.enter()
+    .append("path")
     .attr("class", "dot")
     .attr("transform", function(d) { return "translate(" + x(d.x) + "," + y(d.y) + ")"; })
     .attr("d", d3.svg.symbol()
@@ -171,8 +139,17 @@ function drawVisual(data, viewport) {
         .size(50))
     .style("fill", function(d) { return color(d.c); });
 
+  object.each(function(d) {
+    d3.select(this)
+      .attr("transform", function(d) { return "translate(" + x(d.x) + "," + y(d.y) + ")"; })
+  });
+
+  object.exit().remove();
+}
+
+function drawLegend(data, view, x, y, color, width, height) {
   // Legend
-  var legend = svg.selectAll(".legend")
+  var legend = view.selectAll(".legend")
     .data(color.domain())
     .enter().append("g")
     .attr("class", "legend")
@@ -192,6 +169,44 @@ function drawVisual(data, viewport) {
     .attr("dy", ".35em")
     .style("text-anchor", "end")
     .text(function(d) { return d; });
+}
+
+function drawAxes(data, view, x, y, color, width, height) {
+  var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+
+  var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left");
+
+  // X axis
+  view
+    .append("g")
+      .attr("id", "xAxis")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis)
+      .append("text")
+        .attr("class", "label")
+        .attr("x", width)
+        .attr("y", -6)
+        .style("text-anchor", "end")
+        .text("X");
+
+  // Y axis
+  view
+    .append("g")
+      .attr("id", "yAxis")
+      .attr("class", "y axis")
+      .call(yAxis)
+      .append("text")
+        .attr("class", "label")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", ".71em")
+        .style("text-anchor", "end")
+        .text("Y")
 }
 
 function drawObjTable(data) {
