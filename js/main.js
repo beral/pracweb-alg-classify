@@ -109,8 +109,7 @@ function smartExtent(data, accessor) {
     return [d-1, d+1];
   }
   var extent = d3.extent(data, accessor);
-  var med = (extent[0] + extent[1]) / 2;
-  var delta = 0.05 * (med - extent[0]);
+  var delta = Math.max(1.0, 0.1 * (extent[1] - extent[0]));
   extent[0] -= delta;
   extent[1] += delta;
   return extent;
@@ -297,7 +296,8 @@ function drawObjTable(data) {
       object
         .classed("error", true)
         .html("<td>" + line + "</td>"
-          + "<td colspan=4><span class=\"label label-important\">Синтаксическая ошибка</span>" 
+          + "<td colspan=4>" 
+          + "<span class=\"label label-important\">Синтаксическая ошибка</span>" 
           + "<pre>" + d.text + "</pre></td>");
   });
 
