@@ -22,8 +22,8 @@ function btnRandom_do() {
 }
 
 function btnSubmit_do() {
-  request = {
-    data: pracData
+  var request = {
+    objects: pracData
       .filter(function(d) { return d.valid; })
       .map(function(d) { return {x: d.x, y: d.y, c: d.c, t: d.t}; }),
     params: {
@@ -32,8 +32,22 @@ function btnSubmit_do() {
     }
   };
 
+  var url = "/classifier";
+
   // TODO
   console.log(JSON.stringify(request));
+  $.ajax({
+    url: url,
+    type: 'POST',
+    contentType: 'application/json',
+    processData: false,
+    crossDomain: true,
+    data: JSON.stringify(request),
+  }).done(function(data) {
+    console.log('SUCCESS', data);
+  }).fail(function(xhr, textStatus, errorThrown) {
+    console.log('ERROR', textStatus, errorThrown);
+  });
 }
 
 function parseInput(text) {

@@ -8,7 +8,7 @@
     <meta name="author" content="">
 
     <!-- Le styles -->
-    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="static/css/bootstrap.css" rel="stylesheet">
     <style>
       body {
         min-width: 1000px;
@@ -54,6 +54,7 @@
         <div class="span3">
           <form class="form">
             <legend>Настройки</legend>
+            <!--
             <div class="control-group">
               <label class="control-label" for="opModel">Модель операторов</label>
               <div class="controls">
@@ -102,6 +103,14 @@
                 </select>
               </div>
             </div>
+            <div class="control-group">
+              <label class="control-label" for="serverAddr">Адрес сервера</label>
+              <div class="controls">
+                <input type="url" id="serverAddr"
+                       value="http://127.0.0.1:5000/classifier">
+              </div>
+            </div>
+            -->
             <button 
               class="btn btn-large btn-block btn-primary" 
               type="button"
@@ -141,6 +150,8 @@
           <h4>Байесовская модель операторов</h4>
           Бла-бла-бла про байесовскую модель операторов.
           $$ \Gamma_j = -\ln \frac{d(S, S^j)}{r_j} $$
+          $$ \mathfrak{C}_{q,l}(\mathfrak{I}) \to 
+             \mathfrak{C}_{q,l}(\mathfrak{R}) $$
           <h4>Линейная корректирующая операция</h4>
           Бла-бла-бла про линейную корректирующую операцию.
         </div> <!-- /div right -->
@@ -154,8 +165,8 @@
     <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
     <script src="http://d3js.org/d3.v3.min.js"></script>
     <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/main.js"></script>
+    <script src="static/js/bootstrap.min.js"></script>
+    <script src="static/js/main.js"></script>
   </body>
 </html>
 <!-- vim: set si sw=2 : -->
