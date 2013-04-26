@@ -32,7 +32,7 @@ function btnSubmit_do() {
     }
   };
 
-  var url = "/classifier";
+  var url = document.URL + "/classifier";
 
   // TODO
   console.log(JSON.stringify(request));
