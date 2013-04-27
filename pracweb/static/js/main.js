@@ -64,7 +64,12 @@ function btnSubmit_do() {
     crossDomain: true,
     data: JSON.stringify(request),
   }).done(function(data) {
-    console.log('SUCCESS', data);
+    $("#alerts").append(
+    '<div class="alert alert-success">'
+    + '<button type="button" class="close" '
+    + 'data-dismiss="alert">&times;</button>'
+    + '<strong>OK:</strong> ' + data
+    + '</div>');
   }).fail(function(xhr, textStatus, errorThrown) {
     $("#alerts").append(
     '<div class="alert alert-error">'
