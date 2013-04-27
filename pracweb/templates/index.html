@@ -50,67 +50,38 @@
       <div class="page-header">
         <h1> Классификатор </h1>
       </div>
+      <div class="row-fluid" id="alerts">
+      </div>
       <div class="row-fluid">
         <div class="span3">
           <form class="form">
             <legend>Настройки</legend>
-            <!--
             <div class="control-group">
-              <label class="control-label" for="opModel">Модель операторов</label>
+              <label class="control-label" 
+                     for="selClassifiers">
+                Классификаторы
+              </label>
               <div class="controls">
-                <select id="opModel">
-                  <option value="linear">Линейная</option>
-                  <option value="bayes">Байесовская</option>
-                  <option value="sample">Сравнение с эталоном</option>
-                  <option value="knn">K ближайших соседей</option>
-                  <option value="parzen">Парзеновское окно</option>
-                  <option value="potential">Потенциальные функции</option>
-                  <option value="metric">Общий метрический алгоритм</option>
-                  <option value="scoring">Алгоритм вычисления оценок</option>
-                  <option value="neural">Нейросети</option>
-                  <option value="decisiontree">Решающие деревья</option>
+                <select id="selClassifiers" multiple="multiple">
+                  {% for classifier in classifiers %}
+                  <option value="{{classifier}}">{{classifier}}</option>
+                  {% endfor %}
                 </select>
               </div>
             </div>
             <div class="control-group">
-              <label class="control-label" for="corrOp">Корректирующая операция</label>
+              <label class="control-label" 
+                     for="selCorrector">
+                Корректирующая операция
+              </label>
               <div class="controls">
-                <select id="corrOp">
-                  <option value="linear">Линейная</option>
-                  <option value="true_linear">Настоящая линейная</option>
-                  <option value="indep_opt">Выбор независимого оптимума</option>
-                  <option value="dep_opt">Выбор зависимого оптимума</option>
-                  <option value="priority_individual">Комитет старшинства с индивидуальными классами</option>
-                  <option value="priority_sets">Комитет старшинства с наборами классов</option>
-                  <option value="voting">Комитет большинства</option>
-                  <option value="decisiontree">Решающее дерево</option>
+                <select id="selCorrector">
+                  {% for corrector in correctors %}
+                  <option value="{{corrector}}">{{corrector}}</option>
+                  {% endfor %}
                 </select>
               </div>
             </div>
-            <div class="control-group">
-              <label class="control-label" for="colorMode">Режим раскраски</label>
-              <div class="controls">
-                <select id="colorMode" disabled>
-                  <option>Не нужен</option>
-                </select>
-              </div>
-            </div>
-            <div class="control-group">
-              <label class="control-label" for="workMode">Режим работы</label>
-              <div class="controls">
-                <select id="workMode" disabled>
-                  <option>Не нужен</option>
-                </select>
-              </div>
-            </div>
-            <div class="control-group">
-              <label class="control-label" for="serverAddr">Адрес сервера</label>
-              <div class="controls">
-                <input type="url" id="serverAddr"
-                       value="http://127.0.0.1:5000/classifier">
-              </div>
-            </div>
-            -->
             <button 
               class="btn btn-large btn-block btn-primary" 
               type="button"

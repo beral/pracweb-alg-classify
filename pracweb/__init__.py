@@ -10,32 +10,50 @@ from flask import Flask, request, render_template
 
 import numpy as np
 
+import pracweb.registry as reg
+import pracweb.functions
 
-Dataset = namedtuple('Dataset', ['learn', 'control', 'class_names'])
 
+Dataset = namedtuple('Dataset', 'learn control class_names')
+Grid = namedtuple('Grid', 'left bottom right top width height')
+Model = namedtuple('Model', 'classifiers corrector')
+Problem = namedtuple('Problem', 'data model colormap grid')
 
 app = Flask('pracweb')
 
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template(
+        'index.html',
+        classifiers=reg.classifiers,
+        correctors=reg.correctors)
 
 
 @app.route('/classifier', methods=['POST'])
 def classifier():
     data = request.json
-    dataset = parse_request(data)
-    return str(dataset)
+    try:
+        problem = Problem(
+            parse_objects(data['objects']),
+            parse_model(data['model']),
+            parse_colors(data['colors']),
+            parse_grid(data['grid']))
+    except ValueError as e:
+        print e.message
+        return (e.message, 400, ())
+    except Exception as e:
+        return ('unknown error %s' % e.__class__.__name__, 500, ())
+    return str(problem)
 
 
-def parse_request(data):
-    objects = data['objects']
-    assert isinstance(objects, list)
+def parse_objects(objects):
+    ensure(isinstance(objects, list))
     n = len(objects)
-    assert n > 0
+    ensure(n > 0, "object list is empty")
 
     classes = set(obj['c'] for obj in objects)
+    ensure(all(isinstance(classname, basestring) for classname in classes))
     class_names = dict(enumerate(sorted(classes)))
     rev_class_names = dict((name, n) for n, name in class_names.iteritems())
 
@@ -58,3 +76,37 @@ def parse_request(data):
     )
 
     return Dataset(n_learn, n_control, class_names)
+
+
+def parse_model(model):
+    classifiers = model['classifiers']
+    ensure(isinstance(classifiers, list) and classifiers,
+           "empty classifier list")
+    classifiers = set(classifiers)
+    ensure(all(name in reg.classifiers for name in classifiers),
+           "invalid classifier name")
+
+    corrector = model['corrector']
+    ensure(corrector in reg.correctors, "invalid corrector name")
+    return Model(classifiers, corrector)
+
+
+def parse_colors(colors):
+    ensure(isinstance(colors, dict))
+    colormap = dict()
+    for classname, color in colors.iteritems():
+        ensure(isinstance(classname, basestring))
+        r, g, b = map(float, color)
+        colormap[classname] = (r, g, b)
+    return colormap
+
+
+def parse_grid(grid):
+    left, top, right, bottom = [float(grid[x]) for x in ('left', 'top', 'right', 'bottom')]
+    width, height = [int(grid[x]) for x in ('width', 'height')]
+    return Grid(left, bottom, right, top, width, height)
+
+
+def ensure(stmt, message="unknown error"):
+    if not stmt:
+        raise ValueError(message)

@@ -22,13 +22,33 @@ function btnRandom_do() {
 }
 
 function btnSubmit_do() {
+  var colormap = {},
+      colors = visual.color.domain();
+  for (var i=0; i < colors.length; ++i) {
+    var color = d3.rgb(visual.color(colors[i]));
+    colormap[colors[i]] = [color.r, color.g, color.b];
+  }
+  var x_domain = visual.x.domain(),
+      y_domain = visual.y.domain(),
+      x_range = visual.x.range(),
+      y_range = visual.y.range();
+
   var request = {
     objects: pracData
       .filter(function(d) { return d.valid; })
       .map(function(d) { return {x: d.x, y: d.y, c: d.c, t: d.t}; }),
-    params: {
-      model: $("#opModel").val(),
-      corr_op: $("#corrOp").val(),
+    model: {
+      classifiers: $("#selClassifiers").val(),
+      corrector: $("#selCorrector").val(),
+    },
+    colors: colormap,
+    grid: {
+      left: x_domain[0],
+      bottom: y_domain[0],
+      right: x_domain[1],
+      top: y_domain[1],
+      width: x_range[1] - x_range[0],
+      height: y_range[0] - y_range[1],
     }
   };
 
@@ -46,6 +66,13 @@ function btnSubmit_do() {
   }).done(function(data) {
     console.log('SUCCESS', data);
   }).fail(function(xhr, textStatus, errorThrown) {
+    $("#alerts").append(
+    '<div class="alert alert-error">'
+    + '<button type="button" class="close" '
+    + 'data-dismiss="alert">&times;</button>'
+    + '<strong>ERROR:</strong> ' + xhr.status 
+    + ' (' + xhr.statusText + ') ' + xhr.responseText
+    + '</div>');
     console.log('ERROR', textStatus, errorThrown);
   });
 }
