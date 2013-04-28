@@ -30,7 +30,7 @@ def parse_objects(objects):
     control = []
     for obj in objects:
         desc = (obj['x'], obj['y'], rev_class_names[obj['c']])
-        if obj['t']:
+        if not obj['t']:
             learn.append(desc)
         else:
             control.append(desc)

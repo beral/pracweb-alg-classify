@@ -60,6 +60,7 @@ function btnSubmit_do() {
     crossDomain: true,
     data: JSON.stringify(request),
   }).done(function(data) {
+    /*
     var images = "";
     for (var img_name in data) {
       images += img_name + ': <img src="' + data[img_name]  +'" alt="' + img_name + '"> <br>';
@@ -70,6 +71,10 @@ function btnSubmit_do() {
     + 'data-dismiss="alert">&times;</button>'
     + images
     + '</div>');
+    */
+
+    // FIXME
+    viewport.select("image").attr("xlink:href", data.argmax);
   }).fail(function(xhr, textStatus, errorThrown) {
     $("#alerts").append(
     '<div class="alert alert-error">'
@@ -180,6 +185,9 @@ function createVisual() {
     .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+  // Map
+  viewport.append("image");
+
   // X axis
   viewport
     .append("g")
@@ -239,6 +247,16 @@ function redrawVisual(data) {
     .transition()
     .call(visual.yAxis)
 
+  var showMap = $("#toggleMap").hasClass("active");
+
+  viewport.select("image")
+    .transition()
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("width", width)
+    .attr("height", height)
+    .style("opacity", showMap? 1 : 0);
+
   redrawObjects(data);
   redrawLegend(data);
 }
@@ -252,9 +270,7 @@ function redrawObjects(data) {
   }
 
   var showTrain = $("#toggleTrain").hasClass("active"),
-      showControl = $("#toggleControl").hasClass("active"),
-      showMap = $("#toggleMap").hasClass("active");
-  console.log("toggles: ", showTrain, showControl, showMap);
+      showControl = $("#toggleControl").hasClass("active");
 
   var object = viewport.selectAll(".dot")
     .data(data, function(d) { return [d.line, d.t]; });
