@@ -9,7 +9,7 @@ class Classifier(object):
             self.clf = OneVsRestClassifier(clf)
         else:
             self.clf = clf
-            self.clf.fit(x_train, y_train)
+        self.clf.fit(x_train, y_train)
 
     def __call__(self, x_val):
         return self.clf.predict_proba(x_val)
