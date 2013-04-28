@@ -33,7 +33,7 @@ def nclass_to_nbinary(y):
     return dim, flags
 
 
-#@classifier("neuralnet")
+@classifier("neuralnet")
 class NeuralNet(object):
     def __init__(self, x_train, y_train):
         dim, y_train2 = nclass_to_nbinary(y_train)
@@ -64,7 +64,7 @@ def corrector_polynomial(x_train, y_train, n_classes):
     return clf.predict_proba  # FIXME: dimensions?
 
 
-#@corrector("monotone_special")
+@corrector("monotone_special")
 def corrector_monotone_special(x_train, y_train, n_classes):
     from pybrain.optimization import CMAES
     dim, y_train2 = nclass_to_nbinary(y_train)
@@ -81,7 +81,7 @@ def corrector_monotone_special(x_train, y_train, n_classes):
         return opt_w
 
     w_opt = np.array(map(trainOne, range(dim)))
-    return lambda xx: np.dot(w_opt, x)  # FIXME: dimensions?
+    return lambda xx: np.dot(xx, w_opt.T)
 
 
 def test_iris():
