@@ -4,7 +4,6 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.cross_validation import train_test_split
 
 import numpy as np
-import pylab as pl
 
 from .common import Classifier
 try:
@@ -64,6 +63,7 @@ def test_iris():
 
 
 def run_test():
+    import pylab as pl
     x_train, x_test, y_train, y_test = test_iris()
 
     clf = FiniteParzen(x_train, y_train)
