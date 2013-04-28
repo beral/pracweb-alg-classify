@@ -114,8 +114,24 @@
             </tbody>
           </table>
         </div> <!-- /div central -->
-        <div class="span3" id="alerts">
+        <div class="span3">
+          <legend>Визуализация</legend>
+          <h4>Классы</h4>
+          <ul id="legend"></ul>
+          <h4>Слои</h4>
+          <div id="layerToggles" class="btn-group btn-group-vertical span6" data-toggle="buttons-checkbox">
+             <button id="toggleTrain" class="btn btn-block active btn-primary btn-small">
+               Обучение
+             </button>
+             <button id="toggleControl" class="btn btn-block active btn-primary btn-small">
+               Контроль
+             </button>
+             <button id="toggleMap" class="btn btn-block active btn-primary btn-small">
+               Визуализация
+             </button>
+          </div>
           <legend>Статус</legend>
+          <div id="alerts"></div>
         </div> <!-- /div right -->
       </div>
     </div> <!-- /container -->

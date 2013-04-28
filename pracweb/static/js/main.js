@@ -240,7 +240,7 @@ function redrawVisual(data) {
     .call(visual.yAxis)
 
   redrawObjects(data);
-  redrawLegend(data, width, height);
+  redrawLegend(data);
 }
 
 function redrawObjects(data) {
@@ -251,6 +251,11 @@ function redrawObjects(data) {
     return s;
   }
 
+  var showTrain = $("#toggleTrain").hasClass("active"),
+      showControl = $("#toggleControl").hasClass("active"),
+      showMap = $("#toggleMap").hasClass("active");
+  console.log("toggles: ", showTrain, showControl, showMap);
+
   var object = viewport.selectAll(".dot")
     .data(data, function(d) { return [d.line, d.t]; });
 
@@ -259,14 +264,19 @@ function redrawObjects(data) {
       .attr("class", "dot")
       .attr("transform", function(d) { return transform(d, 5); })
       .attr("d", d3.svg.symbol()
-          .type(function(d) { return d.t? "triangle-up" : "circle"; })
+          .type(function(d) { return d.t? "circle" : "triangle-up"; })
           .size(50))
       .style("opacity", 0)
 
   object
     .transition()
     .attr("transform", function(d) { return transform(d); })
-    .style("opacity", 0.8)
+    .style("opacity", function(d) {
+      if (d.t)
+        return showControl? 0.8 : 0;
+      else
+        return showTrain? 0.8 : 0;
+    })
     .style("fill", function(d) { return visual.color(d.c); });
 
   object.exit()
@@ -276,45 +286,25 @@ function redrawObjects(data) {
     .remove();
 }
 
-function redrawLegend(data, width, height) {
-  // Legend
-  var legend = viewport.selectAll(".legend")
+function redrawLegend(data) {
+  var legend = d3.select("#legend").selectAll("li")
     .data(visual.color.domain().sort(), function(d) { return d; });
 
   enter = legend.enter()
-    .append("g")
-      .attr("class", "legend")
-      .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; })
-      .style("opacity", 0);
-
-  // Color box
-  enter.append("rect")
-    .attr("x", width - 18)
-    .attr("width", 18)
-    .attr("height", 18)
-    .style("fill", visual.color);
-
-  // Item label
-  enter.append("text")
-    .attr("x", width - 24)
-    .attr("y", 9)
-    .attr("dy", ".35em")
-    .style("text-anchor", "end")
-    .text(function(d) { return d; });
+    .append("li")
+      .append("span")
+      .attr("class", "label")
+      .text(function(d) { return d; })
+      .style("background-color", visual.color);
 
   legend
     .transition()
-    .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; })
-    .style("opacity", 1);
+    .selectAll("span")
+      .text(function(d) { return d; })
+      .style("background-color", visual.color);
 
-  legend.select("rect")
-    .transition()
-    .style("fill", visual.color);
-
-  legend.exit()
-    .transition()
-    .style("opacity", 0)
-    .remove();
+  exit = legend.exit()
+    .remove()
 }
 
 function drawObjTable(data) {
@@ -365,11 +355,6 @@ var viewport = null;
 
 
 // Initialization
-$(window).load(function() {
-  resizeViewport();
-  createVisual();
-  $("#inputData").change();
-});
 $("#inputData").keyup(function() {
   $("#inputData").change();
 });
@@ -379,3 +364,14 @@ $("#inputData").change(function() {
   drawObjTable(pracData);
 });
 $(window).resize(resizeViewport);
+
+$("#layerToggles button").click(function() { 
+  $(this).toggleClass("btn-primary"); 
+  setTimeout(function() { redrawVisual(pracData); }, 0);
+});
+
+$(window).load(function() {
+  resizeViewport();
+  createVisual();
+  $("#inputData").change();
+});
