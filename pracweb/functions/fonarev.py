@@ -36,7 +36,7 @@ class StandardParzen(Classifier):
 
 
 # NOT FINISHED!
-@corrector("monotone_affine")
+#@corrector("monotone_affine")
 class MonotoneAffine(object):
     def __init__(self, estimates, labels):
         self.clf_list = []

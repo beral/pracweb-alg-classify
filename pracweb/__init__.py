@@ -33,6 +33,9 @@ def index():
 def classifier():
     try:
         problem = parse_request(request.json)
+        app.logger.info("A: %s, C: %s",
+                        problem.model.classifiers,
+                        problem.model.corrector)
         reqid = "{0}_{1}".format(
             datetime.utcnow().strftime("%s"),
             hashlib.sha1(request.data).hexdigest())

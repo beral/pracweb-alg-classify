@@ -33,7 +33,7 @@ def nclass_to_nbinary(y):
     return dim, flags
 
 
-@classifier("neuralnet")
+#@classifier("neuralnet")
 class NeuralNet(object):
     def __init__(self, x_train, y_train):
         dim, y_train2 = nclass_to_nbinary(y_train)
@@ -56,7 +56,7 @@ class NeuralNet(object):
         return result
 
 
-@corrector("polynomial")
+#@corrector("polynomial")
 def corrector_polynomial(x_train, y_train, n_classes):
     clf = SVC(kernel='poly', degree=2, probability=True)
     clf = OneVsRestClassifier(clf)
@@ -64,7 +64,7 @@ def corrector_polynomial(x_train, y_train, n_classes):
     return clf.predict_proba  # FIXME: dimensions?
 
 
-@corrector("monotone_special")
+#@corrector("monotone_special")
 def corrector_monotone_special(x_train, y_train, n_classes):
     from pybrain.optimization import CMAES
     dim, y_train2 = nclass_to_nbinary(y_train)
