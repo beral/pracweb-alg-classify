@@ -50,13 +50,14 @@ def parse_objects(objects):
 def parse_model(model):
     classifiers = model['classifiers']
     ensure(isinstance(classifiers, list) and classifiers,
-           "empty classifier list")
+           "no classifier selected")
     classifiers = set(classifiers)
     ensure(all(name in reg.classifiers for name in classifiers),
            "invalid classifier name")
 
     corrector = model['corrector']
-    ensure(corrector in reg.correctors, "invalid corrector name")
+    ensure(corrector in reg.correctors,
+           "invalid corrector name")
     return Model(classifiers, corrector)
 
 

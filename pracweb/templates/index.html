@@ -61,7 +61,7 @@
               </label>
               <div class="controls">
                 <select id="selClassifiers" multiple="multiple">
-                  {% for classifier in classifiers %}
+                  {% for classifier in classifiers|sort %}
                   <option value="{{classifier}}">{{classifier}}</option>
                   {% endfor %}
                 </select>
@@ -74,7 +74,7 @@
               </label>
               <div class="controls">
                 <select id="selCorrector">
-                  {% for corrector in correctors %}
+                  {% for corrector in correctors|sort %}
                   <option value="{{corrector}}">{{corrector}}</option>
                   {% endfor %}
                 </select>

@@ -9,18 +9,13 @@ from sklearn.multiclass import OneVsRestClassifier
 import numpy as np
 import pylab as pl
 
+from .common import Classifier
 try:
   from pracweb.registry import classifier, corrector
 except ImportError:
   classifier = lambda x: lambda y: y
   corrector = classifier
 
-class Classifier(object):
-  def __init__(self, clf, x_train, y_train):
-    self.clf = OneVsRestClassifier(clf)
-    self.clf.fit(x_train, y_train)
-  def __call__(self, x_val):
-    return self.clf.predict_proba(x_val)
 
 @classifier('naive_bayesian')
 class NaiveBayesian(Classifier):
@@ -43,10 +38,10 @@ class LinearAffine(Classifier):
   def describe(self):
     pass
 
-@classifier('linear_plynomial')
+@classifier('linear_polynomial')
 class LinearPolynomial(Classifier):
   def __init__(self, x_train, y_train):
-    Classifier.__init__(self, SVC(kernel='poly', degree=degree, probability=True), x_train, y_train)
+    Classifier.__init__(self, SVC(kernel='poly', probability=True), x_train, y_train)
   def describe(self):
     pass
 

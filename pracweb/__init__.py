@@ -32,30 +32,16 @@ def index():
 def classifier():
     try:
         problem = parse_request(request.json)
-        n_classes = len(problem.data.class_names)
-        classifiers = [reg.classifiers[c](problem.data.learn[0],
-                                          problem.data.learn[1])
-                       for c in problem.model.classifiers]
-        corrector = reg.correctors[problem.model.corrector](
-            apply_classifiers(classifiers, problem.data.learn[0], n_classes),
-            problem.data.learn[1],
-            n_classes)
+        n_classes, classifiers, corrector = solve(problem)
 
         Xgrid = make_grid(problem.grid)
+
         Kprobs = apply_classifiers(classifiers, Xgrid, n_classes)
         Fprobs = corrector(Kprobs)
-        Cpred = Fprobs.argmax(1)
 
-        cmap = np.empty((n_classes, 3))
-        for c in xrange(0, n_classes):
-            cmap[c, :] = problem.colormap[problem.data.class_names[c]]
+        cmap = prepare_cmap(problem)
 
-        viz = np.empty((Cpred.size, 3))
-        for x in xrange(0, Cpred.size):
-            viz[x, :] = cmap[Cpred[x], :]
-        viz = viz.reshape((problem.grid.height, problem.grid.width, 3))
-        viz = np.array(viz, dtype=np.uint8)
-        im = Image.fromarray(viz)
+        im = visual_argmax(Fprobs, cmap, problem)
         im.save('/tmp/pracweb.png')
 
         return "ok"
@@ -65,6 +51,18 @@ def classifier():
     except Exception as e:
         traceback.print_exc()
         return ('unknown error %s' % e.__class__.__name__, 500, ())
+
+
+def solve(problem):
+    n_classes = len(problem.data.class_names)
+    classifiers = [reg.classifiers[c](problem.data.learn[0],
+                                      problem.data.learn[1])
+                   for c in problem.model.classifiers]
+    corrector = reg.correctors[problem.model.corrector](
+        apply_classifiers(classifiers, problem.data.learn[0], n_classes),
+        problem.data.learn[1],
+        n_classes)
+    return n_classes, classifiers, corrector
 
 
 def make_grid(grid):
@@ -83,3 +81,22 @@ def apply_classifiers(classifiers, x, n_classes):
     for i in xrange(0, len(classifiers)):
         Kprobs[:, :, i] = classifiers[i](x)
     return Kprobs
+
+
+def prepare_cmap(problem):
+    n_classes = len(problem.data.class_names)
+    cmap = np.empty((n_classes, 3))
+    for c in xrange(0, n_classes):
+        cmap[c, :] = problem.colormap[problem.data.class_names[c]]
+    return cmap
+
+
+def visual_argmax(Fprobs, cmap, problem):
+    Cpred = Fprobs.argmax(1)
+
+    viz = np.empty((Cpred.size, 3))
+    for x in xrange(0, Cpred.size):
+        viz[x, :] = cmap[Cpred[x], :]
+    viz = viz.reshape((problem.grid.height, problem.grid.width, 3))
+    viz = np.array(viz, dtype=np.uint8)
+    return Image.fromarray(viz)
