@@ -49,7 +49,7 @@ def classifier():
         return (str(e), 400, ())
     except Exception as e:
         traceback.print_exc()
-        return ('unknown error %s' % e.__class__.__name__, 500, ())
+        return (traceback.format_exc(), 500, ())
 
 
 @app.route('/result/<filename>')
