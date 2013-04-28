@@ -52,23 +52,23 @@ function btnSubmit_do() {
     }
   };
 
-  var url = document.URL + "/classifier";
-
-  // TODO
-  console.log(JSON.stringify(request));
   $.ajax({
-    url: url,
+    url: "classifier",
     type: 'POST',
     contentType: 'application/json',
     processData: false,
     crossDomain: true,
     data: JSON.stringify(request),
   }).done(function(data) {
+    var images = "";
+    for (var img_name in data) {
+      images += img_name + ': <img src="' + data[img_name]  +'" alt="' + img_name + '"> <br>';
+    }
     $("#alerts").append(
     '<div class="alert alert-success">'
     + '<button type="button" class="close" '
     + 'data-dismiss="alert">&times;</button>'
-    + '<strong>OK:</strong> ' + data
+    + images
     + '</div>');
   }).fail(function(xhr, textStatus, errorThrown) {
     $("#alerts").append(
@@ -78,7 +78,6 @@ function btnSubmit_do() {
     + '<strong>ERROR:</strong> ' + xhr.status 
     + ' (' + xhr.statusText + ') ' + xhr.responseText
     + '</div>');
-    console.log('ERROR', textStatus, errorThrown);
   });
 }
 
