@@ -6,11 +6,10 @@ except ImportError:
     corrector = classifier
 
 
-@classifier("test")
-def test_classifier():
-    pass
+@corrector("mean")
+class Mean(object):
+    def __init__(self, x_learn, y_learn, n_classes):
+        pass
 
-
-@corrector("test")
-def test_corrector():
-    pass
+    def __call__(self, x_val):
+        return x_val.mean(2)

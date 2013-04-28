@@ -3,11 +3,14 @@
 import glob
 import os
 import os.path
+import traceback
+
+import numpy as np
+import pylab as pl
+import Image
 
 import flask
 from flask import Flask, request, render_template
-
-import numpy as np
 
 import pracweb.registry as reg
 import pracweb.functions
@@ -29,9 +32,54 @@ def index():
 def classifier():
     try:
         problem = parse_request(request.json)
+        n_classes = len(problem.data.class_names)
+        classifiers = [reg.classifiers[c](problem.data.learn[0],
+                                          problem.data.learn[1])
+                       for c in problem.model.classifiers]
+        corrector = reg.correctors[problem.model.corrector](
+            apply_classifiers(classifiers, problem.data.learn[0], n_classes),
+            problem.data.learn[1],
+            n_classes)
+
+        Xgrid = make_grid(problem.grid)
+        Kprobs = apply_classifiers(classifiers, Xgrid, n_classes)
+        Fprobs = corrector(Kprobs)
+        Cpred = Fprobs.argmax(1)
+
+        cmap = np.empty((n_classes, 3))
+        for c in xrange(0, n_classes):
+            cmap[c, :] = problem.colormap[problem.data.class_names[c]]
+
+        viz = np.empty((Cpred.size, 3))
+        for x in xrange(0, Cpred.size):
+            viz[x, :] = cmap[Cpred[x], :]
+        viz = viz.reshape((problem.grid.height, problem.grid.width, 3))
+        viz = np.array(viz, dtype=np.uint8)
+        im = Image.fromarray(viz)
+        im.save('/tmp/pracweb.png')
+
         return "ok"
     except ValueError as e:
-        print e.message
-        return (e.message, 400, ())
+        traceback.print_exc()
+        return (str(e), 400, ())
     except Exception as e:
+        traceback.print_exc()
         return ('unknown error %s' % e.__class__.__name__, 500, ())
+
+
+def make_grid(grid):
+    xx = np.linspace(grid.left,
+                     grid.right,
+                     grid.width)
+    yy = np.linspace(grid.top,
+                     grid.bottom,
+                     grid.height).T
+    xx, yy = np.meshgrid(xx, yy)
+    return np.c_[xx.ravel(), yy.ravel()]
+
+
+def apply_classifiers(classifiers, x, n_classes):
+    Kprobs = np.empty((x.shape[0], n_classes, len(classifiers)))
+    for i in xrange(0, len(classifiers)):
+        Kprobs[:, :, i] = classifiers[i](x)
+    return Kprobs
