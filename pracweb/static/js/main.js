@@ -400,24 +400,23 @@ var visual = new Object();
 var margin = {top: 20, right: 20, bottom: 30, left: 40};
 var viewport = null;
 
-
 // Initialization
-$("#inputData").keyup(function() {
-  $("#inputData").change();
-});
-$("#inputData").change(function() {
-  pracData = parseInput($("#inputData").val());
-  redrawVisual(pracData);
-  drawObjTable(pracData);
-});
-$(window).resize(resizeViewport);
-
-$("#layerToggles button").click(function() { 
-  $(this).toggleClass("btn-primary"); 
-  setTimeout(function() { redrawVisual(pracData); }, 0);
-});
-
 $(window).load(function() {
+  $("#inputData").keyup(function() {
+    $("#inputData").change();
+  });
+  $("#inputData").change(function() {
+    pracData = parseInput($("#inputData").val());
+    redrawVisual(pracData);
+    drawObjTable(pracData);
+  });
+  $(window).resize(resizeViewport);
+
+  $("#layerToggles button").click(function() { 
+    $(this).toggleClass("btn-primary"); 
+    setTimeout(function() { redrawVisual(pracData); }, 0);
+  });
+
   resizeViewport();
   createVisual();
   $("#inputData").change();

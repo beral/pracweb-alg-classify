@@ -4,7 +4,6 @@
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neighbors import NearestCentroid
 from sklearn.metrics.pairwise import pairwise_distances
-from sklearn.cross_validation import train_test_split
 
 import numpy as np
 import pylab as pl
@@ -46,6 +45,7 @@ class AVO(Classifier):
 
 
 def test_iris():
+    from sklearn.cross_validation import train_test_split
     from sklearn.datasets import load_iris
     iris = load_iris()
     X, y = iris.data, iris.target

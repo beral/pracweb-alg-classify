@@ -64,7 +64,7 @@ def corrector_polynomial(x_train, y_train, n_classes):
     return clf.predict_proba  # FIXME: dimensions?
 
 
-@corrector("monotone_special")
+#@corrector("monotone_special")
 def corrector_monotone_special(x_train, y_train, n_classes):
     from pybrain.optimization import CMAES
     dim, y_train2 = nclass_to_nbinary(y_train)
