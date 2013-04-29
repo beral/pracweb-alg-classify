@@ -60,7 +60,10 @@ function btnSubmit_do() {
     crossDomain: true,
     data: JSON.stringify(request),
   }).done(function(data) {
-    console.log(JSON.stringify(data));
+    visual.maps = data.visuals;
+    setTimeout(function() { redrawVisual(pracData); }, 0)
+
+    /*
     var images = "";
     for (var img_name in data.visuals) {
       images += img_name + ': <img src="' 
@@ -73,9 +76,7 @@ function btnSubmit_do() {
     + 'data-dismiss="alert">&times;</button>'
     + images
     + '</div>');
-
-    // FIXME
-    viewport.select("image").attr("xlink:href", data.visuals.linspace);
+    */
   }).fail(function(xhr, textStatus, errorThrown) {
     $("#alerts").append(
     '<div class="alert alert-error">'
@@ -140,13 +141,13 @@ function generateData() {
     data.push({x: gen1(), 
         y: gen2(), 
         c: "first",
-        t: i < nc1});
+        t: i > nc1});
   }
   for (var i=0; i<n2; ++i) {
     data.push({x: gen3(), 
         y: gen4(), 
         c: "second",
-        t: i < nc2});
+        t: i > nc2});
   }
   return data;
 }
@@ -258,6 +259,26 @@ function redrawVisual(data) {
     .attr("height", height)
     .style("opacity", showMap? 1 : 0);
 
+  var mapKeys = [];
+  if (visual.maps)
+    mapKeys = Object.keys(visual.maps).sort();
+  var maps = d3.select("#mapSelect").selectAll("button")
+    .data(mapKeys, function(d) { return d; });
+  maps.enter().append("button")
+    .attr("class", "btn btn-block btn-small")
+    .text(function(d) { return d; })
+    .on("click", function() {
+      setTimeout(function() { redrawVisual(pracData); }, 0)
+    })
+  maps.each(function() {
+    var isActive = $(this).hasClass("active");
+    d3.select(this).classed("btn-primary", isActive);
+    if (isActive)
+      viewport.select("image")
+        .attr("xlink:href", visual.maps[this.__data__]);
+  })
+  maps.exit().remove();
+
   redrawObjects(data);
   redrawLegend(data);
 }
@@ -343,7 +364,7 @@ function drawObjTable(data) {
           + "<td>" + d.x + "</td>"
           + "<td>" + d.y + "</td>"
           + "<td>" + d.c + "</td>"
-          + "<td>" + (d.t? "<i class=\"icon-ok\"></i>" : "") + "</td>");
+          + "<td>" + (d.t? "" : "<i class=\"icon-ok\"></i>") + "</td>");
     else
       object
         .classed("error", true)

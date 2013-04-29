@@ -108,7 +108,7 @@
             <thead>
               <tr>
                 <th>Строка</th><th>X</th><th>Y</th>
-                <th>Класс</th><th>Контроль</th>
+                <th>Класс</th><th>Обучение</th>
               </tr>
             </thead>
             <tbody>
@@ -119,17 +119,24 @@
           <legend>Визуализация</legend>
           <h4>Классы</h4>
           <ul id="legend"></ul>
-          <h4>Слои</h4>
-          <div id="layerToggles" class="btn-group btn-group-vertical span6" data-toggle="buttons-checkbox">
-             <button id="toggleTrain" class="btn btn-block active btn-primary btn-small">
-               Обучение
-             </button>
-             <button id="toggleControl" class="btn btn-block active btn-primary btn-small">
-               Контроль
-             </button>
-             <button id="toggleMap" class="btn btn-block active btn-primary btn-small">
-               Визуализация
-             </button>
+          <div class="row-fluid">
+            <h4>Слои</h4>
+            <div id="layerToggles" class="btn-group btn-group-vertical span6" data-toggle="buttons-checkbox">
+              <button id="toggleTrain" class="btn btn-block active btn-primary btn-small">
+                Обучение
+              </button>
+              <button id="toggleControl" class="btn btn-block active btn-primary btn-small">
+                Контроль
+              </button>
+              <button id="toggleMap" class="btn btn-block active btn-primary btn-small">
+                Карта
+              </button>
+            </div>
+          </div>
+          <div class="row-fluid">
+            <h4>Карты</h4>
+            <div id="mapSelect" class="btn-group btn-group-vertical span6" data-toggle="buttons-radio">
+            </div>
           </div>
           <legend>Статус</legend>
           <div id="alerts"></div>

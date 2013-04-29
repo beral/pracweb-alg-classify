@@ -6,6 +6,7 @@ import os.path
 import traceback
 import hashlib
 from datetime import datetime
+import cProfile
 
 import flask
 from flask import Flask, request, render_template, jsonify
@@ -32,6 +33,9 @@ def index():
 @app.route('/classifier', methods=['POST'])
 def classifier():
     try:
+        prof = cProfile.Profile()
+        prof.enable()
+
         problem = parse_request(request.json)
         app.logger.info("A: %s, C: %s",
                         problem.model.classifiers,
@@ -44,6 +48,9 @@ def classifier():
         store_images(visuals, reqid)
         for name in visuals:
             visuals[name] = 'result/{0}_{1}.png'.format(reqid, name)
+
+        prof.disable()
+        prof.print_stats(sort="cumulative")
 
         return jsonify(reply)
     except ValueError as e:
