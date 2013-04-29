@@ -60,10 +60,12 @@ function btnSubmit_do() {
     crossDomain: true,
     data: JSON.stringify(request),
   }).done(function(data) {
-    /*
+    console.log(JSON.stringify(data));
     var images = "";
-    for (var img_name in data) {
-      images += img_name + ': <img src="' + data[img_name]  +'" alt="' + img_name + '"> <br>';
+    for (var img_name in data.visuals) {
+      images += img_name + ': <img src="' 
+              + data.visuals[img_name]  
+              + '" alt="' + img_name + '"> <br>';
     }
     $("#alerts").append(
     '<div class="alert alert-success">'
@@ -71,10 +73,9 @@ function btnSubmit_do() {
     + 'data-dismiss="alert">&times;</button>'
     + images
     + '</div>');
-    */
 
     // FIXME
-    viewport.select("image").attr("xlink:href", data.argmax);
+    viewport.select("image").attr("xlink:href", data.visuals.linspace);
   }).fail(function(xhr, textStatus, errorThrown) {
     $("#alerts").append(
     '<div class="alert alert-error">'

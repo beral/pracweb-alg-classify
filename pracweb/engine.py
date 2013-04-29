@@ -11,11 +11,10 @@ def process_problem(problem):
 
     Kprobs = apply_classifiers(classifiers, Xgrid, n_classes)
     Fprobs = corrector(Kprobs)
-
     cmap = prepare_cmap(problem)
 
     return {
-        'argmax': visual_argmax(Fprobs, cmap, problem),
+        'visuals': make_visuals(Fprobs, cmap, problem),
     }
 
 
@@ -57,12 +56,39 @@ def prepare_cmap(problem):
     return cmap
 
 
-def visual_argmax(Fprobs, cmap, problem):
-    Cpred = Fprobs.argmax(1)
+def make_visuals(Fprobs, cmap, problem):
+    newimg = lambda: np.empty((Fprobs.shape[0], 3), dtype=np.uint8)
+    toimg = lambda v: Image.fromarray(v.reshape((problem.grid.height, problem.grid.width, 3)))
 
-    viz = np.empty((Cpred.size, 3))
-    for x in xrange(0, Cpred.size):
-        viz[x, :] = cmap[Cpred[x], :]
-    viz = viz.reshape((problem.grid.height, problem.grid.width, 3))
-    viz = np.array(viz, dtype=np.uint8)
-    return Image.fromarray(viz)
+    viz_argmax = newimg()
+    viz_intensity = newimg()
+    viz_linspace = newimg()
+    viz_linspace_clamped = newimg()
+    viz_diff = newimg()
+
+    p_max = np.max(Fprobs)
+    p_min = np.min(Fprobs)
+    argmaxs = np.empty((Fprobs.shape[0], 2))
+    diff_norms = np.zeros(Fprobs.shape[1])
+    for x in xrange(0, Fprobs.shape[0]):
+        order = np.argsort(Fprobs[x, :])
+        c, c2 = order[-1], order[-2]
+        argmaxs[x, :] = c, c2
+        diff_norms[c] = max(diff_norms[c], Fprobs[x, c] - Fprobs[x, c2])
+
+    for x in xrange(0, Fprobs.shape[0]):
+        c, c2 = argmaxs[x, :]
+        ks = (Fprobs[x, :] - p_min) / (p_max - p_min + 1e-5)
+        viz_argmax[x, :] = cmap[c, :]
+        viz_intensity[x, :] = ks[c] * cmap[c, :]
+        viz_linspace[x, :] = np.dot(ks / sum(ks), cmap)
+        viz_linspace_clamped[x, :] = np.clip(np.dot(ks, cmap), 0, 255)
+        viz_diff[x, :] = cmap[c, :] * ((Fprobs[x, c] - Fprobs[x, c2]) / diff_norms[c])
+
+    return {
+        'argmax': toimg(viz_argmax),
+        'intensity': toimg(viz_intensity),
+        'linspace': toimg(viz_linspace),
+        'linspace_clamped': toimg(viz_linspace_clamped),
+        'diff': toimg(viz_diff),
+    }

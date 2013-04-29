@@ -39,12 +39,11 @@ def classifier():
         reqid = "{0}_{1}".format(
             datetime.utcnow().strftime("%s"),
             hashlib.sha1(request.data).hexdigest())
-        images = process_problem(problem)
-        store_images(images, reqid)
-
-        reply = {}
-        for name in images:
-            reply[name] = 'result/{0}_{1}.png'.format(reqid, name)
+        reply = process_problem(problem)
+        visuals = reply['visuals']
+        store_images(visuals, reqid)
+        for name in visuals:
+            visuals[name] = 'result/{0}_{1}.png'.format(reqid, name)
 
         return jsonify(reply)
     except ValueError as e:
