@@ -19,14 +19,17 @@ except ImportError:
 
 class ProbaCentroid(NearestCentroid):
     def __init__(self):
-        self.metric = lambda x1,x2: np.log(np.sum(np.square(x1,x2)))
+        self.metric = lambda x1, x2: np.log(np.sqrt(np.sum(np.square(x1 - x2))))
         NearestCentroid.__init__(self, metric=self.metric)
+
     def predict_proba(self, X):
         if not hasattr(self, "centroids_"):
             raise AttributeError("Model has not been trained yet.")
         dists = pairwise_distances(X, self.centroids_, metric=self.metric)
         sums = np.sum(dists, axis=1)
-        return 1-np.divide(dists,np.reshape(np.repeat(sums,2),np.shape(dists)))
+        return 1 - np.divide(dists,
+                             np.reshape(np.repeat(sums, 2),
+                                        dists.shape))
 
 
 @classifier('logarithmic_balls')
@@ -54,17 +57,17 @@ def test_iris():
 def run_test():
     x_train, x_test, y_train, y_test = test_iris()
 
-    #clf = LogarithmicBalls(x_train, y_train)
-    clf = AVO(x_train, y_train)
+    clf = LogarithmicBalls(x_train, y_train)
+    #clf = AVO(x_train, y_train)
 
     y_pred = clf(x_test)
     y_pred = y_pred > 0.5
 
-    pl.scatter(x_test[:, 0], x_test[:, 1],
-               c=y_pred, alpha=0.3, s=100, marker='s')
+    #pl.scatter(x_test[:, 0], x_test[:, 1],
+    #           c=y_pred, alpha=1.0, s=200, marker='s')
 
     pl.scatter(x_test[:, 0], x_test[:, 1],
-               c=y_test, alpha=0.7, s=50)
+               c=y_pred, alpha=1.0, s=50)
 
     pl.show()
 

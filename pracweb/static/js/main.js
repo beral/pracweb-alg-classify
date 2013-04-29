@@ -52,6 +52,7 @@ function btnSubmit_do() {
     }
   };
 
+  $("#btnSubmit").button("loading");
   $.ajax({
     url: "classifier",
     type: 'POST',
@@ -77,6 +78,8 @@ function btnSubmit_do() {
     + images
     + '</div>');
     */
+
+    $("#btnSubmit").button("reset");
   }).fail(function(xhr, textStatus, errorThrown) {
     $("#alerts").append(
     '<div class="alert alert-error">'
@@ -85,6 +88,8 @@ function btnSubmit_do() {
     + '<strong>ERROR:</strong> ' + xhr.status 
     + ' (' + xhr.statusText + ') ' + xhr.responseText
     + '</div>');
+
+    $("#btnSubmit").button("reset");
   });
 }
 
@@ -249,6 +254,12 @@ function redrawVisual(data) {
     .transition()
     .call(visual.yAxis)
 
+  redrawMap(width, height);
+  redrawObjects(data);
+  redrawLegend(data);
+}
+
+function redrawMap(width, height) {
   var showMap = $("#toggleMap").hasClass("active");
 
   viewport.select("image")
@@ -262,6 +273,7 @@ function redrawVisual(data) {
   var mapKeys = [];
   if (visual.maps)
     mapKeys = Object.keys(visual.maps).sort();
+
   var maps = d3.select("#mapSelect").selectAll("button")
     .data(mapKeys, function(d) { return d; });
   maps.enter().append("button")
@@ -278,9 +290,6 @@ function redrawVisual(data) {
         .attr("xlink:href", visual.maps[this.__data__]);
   })
   maps.exit().remove();
-
-  redrawObjects(data);
-  redrawLegend(data);
 }
 
 function redrawObjects(data) {

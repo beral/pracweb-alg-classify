@@ -68,7 +68,7 @@ def make_visuals(Fprobs, cmap, problem):
 
     p_max = np.max(Fprobs)
     p_min = np.min(Fprobs)
-    argmaxs = np.empty((Fprobs.shape[0], 2))
+    argmaxs = np.empty((Fprobs.shape[0], 2), dtype=int)
     diff_norms = np.zeros(Fprobs.shape[1])
     for x in xrange(0, Fprobs.shape[0]):
         order = np.argsort(Fprobs[x, :])
@@ -76,10 +76,13 @@ def make_visuals(Fprobs, cmap, problem):
         argmaxs[x, :] = c, c2
         diff_norms[c] = max(diff_norms[c], Fprobs[x, c] - Fprobs[x, c2])
 
+    viz_argmax[:, :] = cmap[argmaxs[:, 0], :]
+    #kss = (Fprobs - p_min) / (p_max - p_min + 1e-5)
+    #viz_intensity[:, :] = np.dot(kss[:, argmaxs[:, 0]], cmap[argmaxs[:, 0], :])
     for x in xrange(0, Fprobs.shape[0]):
         c, c2 = argmaxs[x, :]
         ks = (Fprobs[x, :] - p_min) / (p_max - p_min + 1e-5)
-        viz_argmax[x, :] = cmap[c, :]
+        #viz_argmax[x, :] = cmap[c, :]
         viz_intensity[x, :] = ks[c] * cmap[c, :]
         viz_linspace[x, :] = np.dot(ks / sum(ks), cmap)
         viz_linspace_clamped[x, :] = np.clip(np.dot(ks, cmap), 0, 255)
