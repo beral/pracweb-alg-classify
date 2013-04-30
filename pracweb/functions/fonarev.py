@@ -35,24 +35,6 @@ class StandardParzen(Classifier):
             y_train)
 
 
-# NOT FINISHED!
-#@corrector("monotone_affine")
-class MonotoneAffine(object):
-    def __init__(self, estimates, labels):
-        self.clf_list = []
-        for label_number in range(estimates.shape[2]):
-            current_clf = LogisticRegression(fit_intercept=True)
-            current_clf.fit(estimates[:, :, label_number], labels[:, label_number])
-            self.clf_list.append(current_clf)
-
-    def __call__(self, estimates):
-        labels = np.zeros([estimates.shape[0], estimates.shape[2]])
-        for label_number in range(estimates.shape[2]):
-            labels[:, label_number] = \
-                self.clf_list[label_number].predict_proba(estimates[:, :, label_number])[1]
-            return labels
-
-
 def test_iris():
     from sklearn.datasets import load_iris
     iris = load_iris()

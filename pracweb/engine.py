@@ -1,23 +1,32 @@
 import numpy as np
 import Image
+from celery import Celery
 
 import pracweb.registry as reg
 
+celery = Celery("engine",
+                broker='redis://localhost:6379/0',
+                backend='redis')
 
+
+class ImagePack(object):
+    def __init__(self, array):
+        self.array = array
+
+    def unpack(self):
+        return Image.fromarray(self.array)
+
+
+@celery.task
 def process_problem(problem):
-    n_classes, classifiers, corrector = solve(problem)
-
-    Xgrid = make_grid(problem.grid)
-
-    Kprobs = apply_classifiers(classifiers, Xgrid, n_classes)
-    Fprobs = corrector(Kprobs)
-    cmap = prepare_cmap(problem)
-
-    return {
-        'visuals': make_visuals(Fprobs, cmap, problem),
-    }
+    chain = (solve.s(problem)
+             | build_map.s(problem)
+             | make_visuals.s(problem)
+             | assemble_result.s())
+    return chain().get()
 
 
+@celery.task
 def solve(problem):
     n_classes = len(problem.data.class_names)
     classifiers = [reg.classifiers[c](problem.data.learn[0],
@@ -27,7 +36,16 @@ def solve(problem):
         apply_classifiers(classifiers, problem.data.learn[0], n_classes),
         problem.data.learn[1],
         n_classes)
-    return n_classes, classifiers, corrector
+    return classifiers, corrector
+
+
+@celery.task
+def build_map(model, problem):
+    classifiers, corrector = model
+    n_classes = len(problem.data.class_names)
+    Xgrid = make_grid(problem.grid)
+    Kprobs = apply_classifiers(classifiers, Xgrid, n_classes)
+    return corrector(Kprobs)
 
 
 def make_grid(grid):
@@ -56,9 +74,18 @@ def prepare_cmap(problem):
     return cmap
 
 
-def make_visuals(Fprobs, cmap, problem):
+@celery.task
+def make_visuals(Fprobs, problem):
+    cmap = prepare_cmap(problem)
+
     newimg = lambda: np.empty((Fprobs.shape[0], 3), dtype=np.uint8)
-    toimg = lambda v: Image.fromarray(v.reshape((problem.grid.height, problem.grid.width, 3)))
+    toimg = lambda v: ImagePack(
+        Image.fromarray(
+            v.reshape(
+                (problem.grid.height, problem.grid.width, 3)
+            )
+        )
+    )
 
     viz_argmax = newimg()
     viz_intensity = newimg()
@@ -94,4 +121,11 @@ def make_visuals(Fprobs, cmap, problem):
         'linspace': toimg(viz_linspace),
         'linspace_clamped': toimg(viz_linspace_clamped),
         'diff': toimg(viz_diff),
+    }
+
+
+@celery.task
+def assemble_result(visuals):
+    return {
+        'visuals': visuals
     }

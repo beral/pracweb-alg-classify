@@ -33,24 +33,22 @@ def index():
 @app.route('/classifier', methods=['POST'])
 def classifier():
     try:
-        prof = cProfile.Profile()
-        prof.enable()
-
         problem = parse_request(request.json)
         app.logger.info("A: %s, C: %s",
                         problem.model.classifiers,
                         problem.model.corrector)
+
         reqid = "{0}_{1}".format(
             datetime.utcnow().strftime("%s"),
             hashlib.sha1(request.data).hexdigest())
-        reply = process_problem(problem)
+
+        task = process_problem.delay(problem)
+        reply = task.get()
+
         visuals = reply['visuals']
         store_images(visuals, reqid)
         for name in visuals:
             visuals[name] = 'result/{0}_{1}.png'.format(reqid, name)
-
-        prof.disable()
-        prof.print_stats(sort="cumulative")
 
         return jsonify(reply)
     except ValueError as e:
@@ -70,6 +68,6 @@ def store_images(images, reqid):
     if not os.path.isdir(STORE_PATH):
         os.mkdir(STORE_PATH)
     for name, image in images.iteritems():
-        image.save(os.path.join(
+        image.unpack().save(os.path.join(
             STORE_PATH,
             '{0}_{1}.png'.format(reqid, name)))
