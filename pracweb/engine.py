@@ -1,4 +1,7 @@
+import os.path
 import numpy as np
+from numpy.ctypeslib import load_library, ndpointer
+import ctypes
 import Image
 from celery import Celery
 
@@ -17,16 +20,15 @@ class ImagePack(object):
         return Image.fromarray(self.array)
 
 
-@celery.task
+@celery.task(track_started=True, acks_late=True)
 def process_problem(problem):
-    chain = (solve.s(problem)
-             | build_map.s(problem)
-             | make_visuals.s(problem)
-             | assemble_result.s())
-    return chain().get()
+    model = solve(problem)
+    estimate_map = build_map(model, problem)
+    return {
+        'visuals': make_visuals(estimate_map, problem)
+    }
 
 
-@celery.task
 def solve(problem):
     n_classes = len(problem.data.class_names)
     classifiers = [reg.classifiers[c](problem.data.learn[0],
@@ -39,7 +41,6 @@ def solve(problem):
     return classifiers, corrector
 
 
-@celery.task
 def build_map(model, problem):
     classifiers, corrector = model
     n_classes = len(problem.data.class_names)
@@ -74,16 +75,16 @@ def prepare_cmap(problem):
     return cmap
 
 
-@celery.task
 def make_visuals(Fprobs, problem):
     cmap = prepare_cmap(problem)
 
-    newimg = lambda: np.empty((Fprobs.shape[0], 3), dtype=np.uint8)
+    newimg = lambda: np.empty(
+        (Fprobs.shape[0], 3),
+        dtype=ctypes.c_uint8
+    )
     toimg = lambda v: ImagePack(
-        Image.fromarray(
-            v.reshape(
-                (problem.grid.height, problem.grid.width, 3)
-            )
+        v.reshape(
+            (problem.grid.height, problem.grid.width, 3)
         )
     )
 
@@ -93,27 +94,20 @@ def make_visuals(Fprobs, problem):
     viz_linspace_clamped = newimg()
     viz_diff = newimg()
 
-    p_max = np.max(Fprobs)
-    p_min = np.min(Fprobs)
-    argmaxs = np.empty((Fprobs.shape[0], 2), dtype=int)
-    diff_norms = np.zeros(Fprobs.shape[1])
-    for x in xrange(0, Fprobs.shape[0]):
-        order = np.argsort(Fprobs[x, :])
-        c, c2 = order[-1], order[-2]
-        argmaxs[x, :] = c, c2
-        diff_norms[c] = max(diff_norms[c], Fprobs[x, c] - Fprobs[x, c2])
-
-    viz_argmax[:, :] = cmap[argmaxs[:, 0], :]
-    #kss = (Fprobs - p_min) / (p_max - p_min + 1e-5)
-    #viz_intensity[:, :] = np.dot(kss[:, argmaxs[:, 0]], cmap[argmaxs[:, 0], :])
-    for x in xrange(0, Fprobs.shape[0]):
-        c, c2 = argmaxs[x, :]
-        ks = (Fprobs[x, :] - p_min) / (p_max - p_min + 1e-5)
-        #viz_argmax[x, :] = cmap[c, :]
-        viz_intensity[x, :] = ks[c] * cmap[c, :]
-        viz_linspace[x, :] = np.dot(ks / sum(ks), cmap)
-        viz_linspace_clamped[x, :] = np.clip(np.dot(ks, cmap), 0, 255)
-        viz_diff[x, :] = cmap[c, :] * ((Fprobs[x, c] - Fprobs[x, c2]) / diff_norms[c])
+    _native_visualize(
+        Fprobs.shape[0],
+        Fprobs.shape[1],
+        Fprobs,
+        cmap,
+        np.empty((Fprobs.shape[0], 2), dtype=ctypes.c_size_t),  # argmaxs
+        np.empty(Fprobs.shape[1], dtype=ctypes.c_double),  # diff_norms
+        np.empty(Fprobs.shape[1], dtype=ctypes.c_double),  # ks
+        viz_argmax,
+        viz_intensity,
+        viz_linspace,
+        viz_linspace_clamped,
+        viz_diff,
+    )
 
     return {
         'argmax': toimg(viz_argmax),
@@ -124,8 +118,27 @@ def make_visuals(Fprobs, problem):
     }
 
 
-@celery.task
-def assemble_result(visuals):
-    return {
-        'visuals': visuals
-    }
+_visual_lib = load_library(
+    'visual',
+    os.path.dirname(__file__)
+)
+_native_visualize = _visual_lib.visualize
+_native_visualize.restype = None
+_float1d = ndpointer(ctypes.c_double, ndim=1, flags='CONTIGUOUS')
+_float2d = ndpointer(ctypes.c_double, ndim=2, flags='CONTIGUOUS')
+_uint2d = ndpointer(ctypes.c_size_t, ndim=2, flags='CONTIGUOUS')
+_byte2d = ndpointer(ctypes.c_uint8, ndim=2, flags='CONTIGUOUS')
+_native_visualize.argtypes = [
+    ctypes.c_size_t,
+    ctypes.c_size_t,
+    _float2d,
+    _float2d,
+    _uint2d,
+    _float1d,
+    _float1d,
+    _byte2d,
+    _byte2d,
+    _byte2d,
+    _byte2d,
+    _byte2d,
+]
