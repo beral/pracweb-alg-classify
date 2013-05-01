@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-from setuptools import setup
+from setuptools import setup, Extension
+
+native = Extension('pracweb.native.visual',
+                   sources=['native/visual.c'],
+                   extra_compile_args=['-std=c99', '-O3'])
 
 setup(
     name='PracWeb',
@@ -14,6 +18,7 @@ setup(
         'Flask',
         'scikit-learn>=0.13',
         'pybrain',
-        'celery>=3'
-    ]
+        'celery-with-redis>=3'
+    ],
+    ext_modules=[native],
 )

@@ -1,11 +1,10 @@
-import os.path
 import numpy as np
-from numpy.ctypeslib import load_library, ndpointer
 import ctypes
 import Image
 from celery import Celery
 
 import pracweb.registry as reg
+import pracweb.native as native
 
 celery = Celery("engine",
                 broker='redis://localhost:6379/0',
@@ -94,7 +93,7 @@ def make_visuals(Fprobs, problem):
     viz_linspace_clamped = newimg()
     viz_diff = newimg()
 
-    _native_visualize(
+    native.visualize(
         Fprobs.shape[0],
         Fprobs.shape[1],
         Fprobs,
@@ -116,29 +115,3 @@ def make_visuals(Fprobs, problem):
         'linspace_clamped': toimg(viz_linspace_clamped),
         'diff': toimg(viz_diff),
     }
-
-
-_visual_lib = load_library(
-    'visual',
-    os.path.dirname(__file__)
-)
-_native_visualize = _visual_lib.visualize
-_native_visualize.restype = None
-_float1d = ndpointer(ctypes.c_double, ndim=1, flags='CONTIGUOUS')
-_float2d = ndpointer(ctypes.c_double, ndim=2, flags='CONTIGUOUS')
-_uint2d = ndpointer(ctypes.c_size_t, ndim=2, flags='CONTIGUOUS')
-_byte2d = ndpointer(ctypes.c_uint8, ndim=2, flags='CONTIGUOUS')
-_native_visualize.argtypes = [
-    ctypes.c_size_t,
-    ctypes.c_size_t,
-    _float2d,
-    _float2d,
-    _uint2d,
-    _float1d,
-    _float1d,
-    _byte2d,
-    _byte2d,
-    _byte2d,
-    _byte2d,
-    _byte2d,
-]

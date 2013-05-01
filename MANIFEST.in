@@ -1,0 +1,3 @@
+recursive-include pracweb *.py
+recursive-include pracweb/templates *
+recursive-include pracweb/static *
