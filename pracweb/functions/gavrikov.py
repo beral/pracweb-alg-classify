@@ -82,29 +82,3 @@ def corrector_monotone_special(x_train, y_train, n_classes):
 
     w_opt = np.array(map(trainOne, range(dim)))
     return lambda xx: np.dot(xx, w_opt.T)
-
-
-def test_iris():
-    from sklearn.cross_validation import train_test_split
-    from sklearn.datasets import load_iris
-    iris = load_iris()
-    X, y = iris.data, iris.target
-    X = X[:, [0, 2]]
-    x_train, x_test, y_train, y_test = train_test_split(X, y)
-    return x_train, x_test, y_train, y_test
-
-
-def run_test():
-    import pylab as pl
-    x_train, x_test, y_train, y_test = test_iris()
-    func = NeuralNet(x_train, y_train)
-    y_pred = np.argmax(func(x_test))
-
-    pl.scatter(x_test[:, 0], x_test[:, 1],
-               c=y_pred, alpha=0.3, s=100, marker='s')
-    pl.scatter(x_test[:, 0], x_test[:, 1],
-               c=y_test, alpha=0.7, s=50)
-    pl.show()
-
-if __name__ == '__main__':
-    run_test()
