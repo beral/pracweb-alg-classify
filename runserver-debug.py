@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-import pracweb
+from pracweb.server import app
 
 if __name__ == '__main__':
-    pracweb.app.run(debug=True)
+    app.run(debug=True, use_debugger=False)

@@ -1,8 +1,7 @@
-import pracweb.functions.test
-import pracweb.functions.kondrashkin
-import pracweb.functions.fonarev
-import pracweb.functions.fonarev_correctors
-import pracweb.functions.gavrikov
-import pracweb.functions.nizhibitsky
-import pracweb.functions.ostapets
-
+from . import test
+from . import kondrashkin
+from . import fonarev
+from . import fonarev_correctors
+from . import gavrikov
+from . import nizhibitsky
+from . import ostapets

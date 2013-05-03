@@ -15,9 +15,9 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=[
-        'Flask',
+        'Flask>=0.8',
         'scikit-learn>=0.13',
-        'pybrain',
+        'pybrain>=0.3',
         'celery-with-redis>=3'
     ],
     ext_modules=[native],

@@ -53,44 +53,58 @@ function btnSubmit_do() {
   };
 
   $("#btnSubmit").button("loading");
+  $("#requestProgress .bar").width("0%");
+  var onSuccess = function(data) {
+    //console.log(data);
+
+    visual.maps = data.maps;
+    setTimeout(function() { redrawVisual(pracData); }, 0);
+
+    $("#requestProgress .bar").width("100%").text("");
+    setTimeout(function() { 
+      $("#requestProgress .bar").width("0%"); 
+    }, 2000);
+    $("#btnSubmit").button("reset");
+  };
+  var onError = function(jqxhr, textStatus, errorThrown) {
+    $("#alerts").append(
+    '<div class="alert alert-error">'
+    + '<button type="button" class="close" '
+    + 'data-dismiss="alert">&times;</button>'
+    + '<strong>ERROR:</strong> ' + jqxhr.status 
+    + ' (' + jqxhr.statusText + ') ' + jqxhr.responseText
+    + '</div>');
+
+    $("#requestProgress .bar").width("0%").text("");
+    $("#btnSubmit").button("reset");
+  };
+  var onProgress = function(data) {
+    //console.log(data);
+    
+    $("#requestProgress .bar")
+      .width(data.progress+"%")
+      .text(data.comment);
+    setTimeout(function() {
+      $.ajax({
+        url: "status/" + data.result_id,
+        statusCode: {
+          200: onSuccess,
+          206: onProgress,
+        }
+      }).fail(onError);
+    }, 1000);
+  };
   $.ajax({
     url: "classifier",
     type: 'POST',
     contentType: 'application/json',
     processData: false,
-    crossDomain: true,
     data: JSON.stringify(request),
-  }).done(function(data) {
-    visual.maps = data.visuals;
-    setTimeout(function() { redrawVisual(pracData); }, 0)
-
-    /*
-    var images = "";
-    for (var img_name in data.visuals) {
-      images += img_name + ': <img src="' 
-              + data.visuals[img_name]  
-              + '" alt="' + img_name + '"> <br>';
-    }
-    $("#alerts").append(
-    '<div class="alert alert-success">'
-    + '<button type="button" class="close" '
-    + 'data-dismiss="alert">&times;</button>'
-    + images
-    + '</div>');
-    */
-
-    $("#btnSubmit").button("reset");
-  }).fail(function(xhr, textStatus, errorThrown) {
-    $("#alerts").append(
-    '<div class="alert alert-error">'
-    + '<button type="button" class="close" '
-    + 'data-dismiss="alert">&times;</button>'
-    + '<strong>ERROR:</strong> ' + xhr.status 
-    + ' (' + xhr.statusText + ') ' + xhr.responseText
-    + '</div>');
-
-    $("#btnSubmit").button("reset");
-  });
+    statusCode: {
+      200: onSuccess,
+      206: onProgress,
+    },
+  }).fail(onError);
 }
 
 function parseInput(text) {

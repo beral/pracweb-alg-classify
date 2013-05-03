@@ -1,14 +1,10 @@
+import os.path
 import numpy as np
 import ctypes
 import Image
-from celery import Celery
 
-import pracweb.registry as reg
-import pracweb.native as native
-
-celery = Celery("engine",
-                broker='redis://localhost:6379/0',
-                backend='redis')
+from . import registry
+from . import native
 
 
 class ImagePack(object):
@@ -19,21 +15,12 @@ class ImagePack(object):
         return Image.fromarray(self.array)
 
 
-@celery.task(track_started=True, acks_late=True)
-def process_problem(problem):
-    model = solve(problem)
-    estimate_map = build_map(model, problem)
-    return {
-        'visuals': make_visuals(estimate_map, problem)
-    }
-
-
 def solve(problem):
     n_classes = len(problem.data.class_names)
-    classifiers = [reg.classifiers[c](problem.data.learn[0],
-                                      problem.data.learn[1])
+    classifiers = [registry.classifiers[c](problem.data.learn[0],
+                                           problem.data.learn[1])
                    for c in problem.model.classifiers]
-    corrector = reg.correctors[problem.model.corrector](
+    corrector = registry.correctors[problem.model.corrector](
         apply_classifiers(classifiers, problem.data.learn[0], n_classes),
         problem.data.learn[1],
         n_classes)
@@ -115,3 +102,16 @@ def make_visuals(Fprobs, problem):
         'linspace_clamped': toimg(viz_linspace_clamped),
         'diff': toimg(viz_diff),
     }
+
+
+def store_images(images, task_id, store_path):
+    if not os.path.isdir(store_path):
+        os.mkdir(store_path)
+
+    paths = dict()
+    for name, image in images.iteritems():
+        image.unpack().save(os.path.join(
+            store_path,
+            '{0}_{1}.png'.format(task_id, name)))
+        paths[name] = 'result/{0}/{1}.png'.format(task_id, name)
+    return paths
