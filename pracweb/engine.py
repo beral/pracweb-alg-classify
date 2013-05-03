@@ -7,14 +7,6 @@ from . import registry
 from . import native
 
 
-class ImagePack(object):
-    def __init__(self, array):
-        self.array = array
-
-    def unpack(self):
-        return Image.fromarray(self.array)
-
-
 def solve(problem):
     n_classes = len(problem.data.class_names)
     classifiers = [registry.classifiers[c](problem.data.learn[0],
@@ -68,11 +60,7 @@ def make_visuals(Fprobs, problem):
         (Fprobs.shape[0], 3),
         dtype=ctypes.c_uint8
     )
-    toimg = lambda v: ImagePack(
-        v.reshape(
-            (problem.grid.height, problem.grid.width, 3)
-        )
-    )
+    toimg = lambda v: v.reshape((problem.grid.height, problem.grid.width, 3))
 
     viz_argmax = newimg()
     viz_intensity = newimg()
@@ -109,8 +97,8 @@ def store_images(images, task_id, store_path):
         os.mkdir(store_path)
 
     paths = dict()
-    for name, image in images.iteritems():
-        image.unpack().save(os.path.join(
+    for name, imgbuf in images.iteritems():
+        Image.fromarray(imgbuf).save(os.path.join(
             store_path,
             '{0}_{1}.png'.format(task_id, name)))
         paths[name] = 'result/{0}/{1}.png'.format(task_id, name)

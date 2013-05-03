@@ -53,7 +53,7 @@ function btnSubmit_do() {
   };
 
   $("#btnSubmit").button("loading");
-  $("#requestProgress .bar").width("0%");
+  $("#requestProgress .bar").width("0%").show();
   var onSuccess = function(data) {
     //console.log(data);
 
@@ -62,8 +62,8 @@ function btnSubmit_do() {
 
     $("#requestProgress .bar").width("100%").text("");
     setTimeout(function() { 
-      $("#requestProgress .bar").width("0%"); 
-    }, 2000);
+      $("#requestProgress .bar").width("0%").hide(); 
+    }, 500);
     $("#btnSubmit").button("reset");
   };
   var onError = function(jqxhr, textStatus, errorThrown) {
