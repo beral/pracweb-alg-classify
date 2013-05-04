@@ -57,7 +57,7 @@ class NeuralNet(object):
 
 
 #@corrector("polynomial")
-def corrector_polynomial(x_train, y_train, n_classes):
+def corrector_polynomial(x_train, y_train):
     clf = SVC(kernel='poly', degree=2, probability=True)
     clf = OneVsRestClassifier(clf)
     clf.fit(x_train, y_train)
@@ -65,7 +65,7 @@ def corrector_polynomial(x_train, y_train, n_classes):
 
 
 #@corrector("monotone_special")
-def corrector_monotone_special(x_train, y_train, n_classes):
+def corrector_monotone_special(x_train, y_train):
     from pybrain.optimization import CMAES
     dim, y_train2 = nclass_to_nbinary(y_train)
     y_train2 = np.array(y_train2)

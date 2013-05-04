@@ -14,8 +14,7 @@ def solve(problem):
                    for c in problem.model.classifiers]
     corrector = registry.correctors[problem.model.corrector](
         apply_classifiers(classifiers, problem.data.learn[0], n_classes),
-        problem.data.learn[1],
-        n_classes)
+        problem.data.learn[1])
     return classifiers, corrector
 
 

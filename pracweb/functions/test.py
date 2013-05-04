@@ -8,7 +8,7 @@ except ImportError:
 
 @corrector("mean")
 class Mean(object):
-    def __init__(self, x_learn, y_learn, n_classes):
+    def __init__(self, x_learn, y_learn):
         pass
 
     def __call__(self, x_val):

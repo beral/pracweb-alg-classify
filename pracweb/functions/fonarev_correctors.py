@@ -20,7 +20,7 @@ def nclass_to_nbinary(y):
 
 @corrector("monotone_linear")
 class MonotoneLinear(object):
-    def __init__(self, x_learn, y_learn, n_classes=0):
+    def __init__(self, x_learn, y_learn):
         _, y = nclass_to_nbinary(y_learn)
         x = np.swapaxes(x_learn, 1, 2)
         w = np.random.randn(np.shape(x)[2])
