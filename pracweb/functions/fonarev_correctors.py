@@ -71,7 +71,7 @@ class MonotoneAffine(object):
         print >> sys.stderr, "weights size", self.weights.shape
         print >> sys.stderr, "weights: ", self.weights
 
-        x = np.dstack([x_val, np.ones([x_learn.shape[0], x_learn.shape[1]])])
+        x = np.dstack([x_val, np.ones([x_val.shape[0], x_val.shape[1]])])
         return np.dot(x, self.weights)
 
 @corrector("special_affine")
@@ -160,6 +160,6 @@ if __name__ == '__main__':
     y_learn = np.array([1,2,3,4,1])
     x_test = np.round(np.random.random([5, 4, 3]) * 5)
 
-    c = SpecialAffine(x_learn, y_learn)
+    c = MonotoneAffine(x_learn, y_learn)
     print c.weights
     print c(x_test)
