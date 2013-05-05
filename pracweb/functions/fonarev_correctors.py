@@ -23,7 +23,7 @@ def nclass_to_nbinary(y):
 class MonotoneLinear(object):
     def __init__(self, x_learn, y_learn):
         _, y = nclass_to_nbinary(y_learn)
-        x = deepcopy(x_learn)
+        x = x_learn
         self.weights = np.array([])
 
         for oper_number in range(1, x.shape[2] + 1):
@@ -46,11 +46,93 @@ class MonotoneLinear(object):
 
         return np.dot(x_val, self.weights)
 
-@corrector("unstable_monotone_linear")
+@corrector("monotone_affine")
+class MonotoneAffine(object):
+    def __init__(self, x_learn, y_learn):
+        _, y = nclass_to_nbinary(y_learn)
+        x = np.dstack([x_learn, np.ones([x_learn.shape[0], x_learn.shape[1]])])
+        self.weights = np.array([])
+
+        for oper_number in range(1, x.shape[2] + 1):
+            func_min = 100000
+            func_argmin = 0
+
+            for new_weight in np.arange(0, 5, 0.01):
+                w = np.hstack([self.weights, new_weight])
+                func_value = \
+                        np.sum((np.dot(x[:, :, :oper_number], w) - y) ** 2)
+                if func_value < func_min:
+                    func_min, func_argmin = func_value, new_weight
+
+            self.weights = np.hstack([self.weights, func_argmin])
+
+    def __call__(self, x_val):
+        print >> sys.stderr, "x size", x_val.shape
+        print >> sys.stderr, "weights size", self.weights.shape
+        print >> sys.stderr, "weights: ", self.weights
+
+        x = np.dstack([x_val, np.ones([x_learn.shape[0], x_learn.shape[1]])])
+        return np.dot(x, self.weights)
+
+@corrector("special_affine")
+class SpecialAffine(object):
+    def __init__(self, x_learn, y_learn):
+        _, y = nclass_to_nbinary(y_learn)
+        x = x_learn
+        self.weights = np.array([1])
+
+        for oper_number in range(2, x.shape[2] + 1):
+            func_min = 100000
+            func_argmin = 0
+
+            for new_weight in np.arange(-5, 5, 0.01):
+                w = np.hstack([self.weights, new_weight])
+                func_value = \
+                        np.sum((np.dot(x[:, :, :oper_number], w) - y) ** 2)
+                if func_value < func_min:
+                    func_min, func_argmin = func_value, new_weight
+
+            self.weights = np.hstack([self.weights, func_argmin])
+
+    def __call__(self, x_val):
+        print >> sys.stderr, "x size", x_val.shape
+        print >> sys.stderr, "weights size", self.weights.shape
+        print >> sys.stderr, "weights: ", self.weights
+
+        return np.dot(x_val, self.weights)
+
+@corrector("special_monotone_affine")
+class SpecialMonotoneAffine(object):
+    def __init__(self, x_learn, y_learn):
+        _, y = nclass_to_nbinary(y_learn)
+        x = x_learn
+        self.weights = np.array([1])
+
+        for oper_number in range(2, x.shape[2] + 1):
+            func_min = 100000
+            func_argmin = 0
+
+            for new_weight in np.arange(0, 5, 0.01):
+                w = np.hstack([self.weights, new_weight])
+                func_value = \
+                        np.sum((np.dot(x[:, :, :oper_number], w) - y) ** 2)
+                if func_value < func_min:
+                    func_min, func_argmin = func_value, new_weight
+
+            self.weights = np.hstack([self.weights, func_argmin])
+
+    def __call__(self, x_val):
+        print >> sys.stderr, "x size", x_val.shape
+        print >> sys.stderr, "weights size", self.weights.shape
+        print >> sys.stderr, "weights: ", self.weights
+
+        return np.dot(x_val, self.weights)
+
+
 class UnstableMonotoneLinear(object):
     def __init__(self, x_learn, y_learn):
         _, y = nclass_to_nbinary(y_learn)
-        x = np.swapaxes(x_learn, 1, 2)
+        #x = np.swapaxes(x_learn, 1, 2)
         w = np.random.randn(np.shape(x)[2])
         print "x size", x.shape
         print "y size", y.shape
@@ -69,7 +151,8 @@ class UnstableMonotoneLinear(object):
         print "x size", x_val.shape
         print "weights size", self.weights.shape
 
-        return np.dot(np.swapaxes(x_val, 1, 2), self.weights)
+        return np.dot(x_val, self.weights)
+
 
 if __name__ == '__main__':
     x_learn = np.round(np.random.random([5, 4, 3]) * 5)
@@ -77,6 +160,6 @@ if __name__ == '__main__':
     y_learn = np.array([1,2,3,4,1])
     x_test = np.round(np.random.random([5, 4, 3]) * 5)
 
-    c = MonotoneLinear(x_learn, y_learn)
+    c = SpecialAffine(x_learn, y_learn)
     print c.weights
     print c(x_test)
