@@ -33,10 +33,17 @@ function btnSubmit_do() {
       x_range = visual.x.range(),
       y_range = visual.y.range();
 
+  var objects = pracData
+      .filter(function(d) { return d.valid; });
   var request = {
-    objects: pracData
-      .filter(function(d) { return d.valid; })
-      .map(function(d) { return {x: d.x, y: d.y, c: d.c, t: d.t}; }),
+    data: {
+      learn: objects
+        .filter(function(d) { return !d.t; })
+        .map(function(d) { return {x: d.x, y: d.y, c: d.c}; }),
+      test: objects
+        .filter(function(d) { return d.t; })
+        .map(function(d) { return {x: d.x, y: d.y, c: d.c}; }),
+    },
     model: {
       classifiers: $("#selClassifiers").val(),
       corrector: $("#selCorrector").val(),
