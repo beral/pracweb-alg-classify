@@ -2,6 +2,7 @@ import os.path
 import numpy as np
 import ctypes
 import Image
+import sklearn.metrics as skm
 
 from . import registry
 from . import native
@@ -24,6 +25,40 @@ def build_map(model, problem):
     Xgrid = make_grid(problem.grid)
     Kprobs = apply_classifiers(classifiers, Xgrid, n_classes)
     return corrector(Kprobs)
+
+
+def eval_model(model, problem):
+    classifiers, corrector = model
+    class_names = problem.data.class_names
+    n_classes = len(class_names)
+    Fprobs = corrector(
+        apply_classifiers(classifiers, problem.data.test[0], n_classes))
+    y_true = problem.data.test[1]
+    y_pred = np.argmax(Fprobs, 1)
+    labels = range(0, n_classes)
+    metrics = skm.precision_recall_fscore_support(y_true, y_pred, labels=labels)
+    confusion_matrix = skm.confusion_matrix(y_true, y_pred, labels)
+    precision, recall, fscore, support = metrics
+
+    metrics_data = [['Class name',
+                     'Precision',
+                     'Recall',
+                     'F-Score',
+                     'Support']]
+    for i in labels:
+        metrics_data.append([
+            class_names[i],
+            precision[i],
+            recall[i],
+            fscore[i],
+            int(support[i]),  # workaround: make json-serializable
+        ])
+
+    conf_data = [[''] + map(class_names.__getitem__, labels)]
+    for i in labels:
+        conf_data.append([class_names[i]] + confusion_matrix[i, :].tolist())
+
+    return metrics_data, conf_data
 
 
 def make_grid(grid):

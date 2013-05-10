@@ -1,8 +1,7 @@
 # encoding: utf-8
 
-import os
-import os.path
 import traceback
+import pprint
 
 import flask
 from flask import Flask, request
@@ -42,6 +41,7 @@ def check_status(task_id):
         if task.successful():  # Task finished successfully
             status, result_value = task.result
             if status:  # Valid result
+                app.logger.info("result: %s", pprint.pformat(result_value))
                 return flask.jsonify(result_value)
             else:  # Handled exception
                 response = flask.make_response(result_value, 400)
@@ -63,7 +63,7 @@ def check_status(task_id):
         if task.state == 'PROGRESS':
             status.update(task.result)
         response = flask.jsonify(status)
-        response.status_code = 206
+        response.status_code = 202
         return response
 
 

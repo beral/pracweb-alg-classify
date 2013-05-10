@@ -62,7 +62,7 @@ function btnSubmit_do() {
   $("#btnSubmit").button("loading");
   $("#requestProgress .bar").width("0%").show();
   var onSuccess = function(data) {
-    //console.log(data);
+    console.log(data);
 
     visual.maps = data.maps;
     setTimeout(function() { redrawVisual(pracData); }, 0);
@@ -82,7 +82,10 @@ function btnSubmit_do() {
     + ' (' + jqxhr.statusText + ') ' + jqxhr.responseText
     + '</div>');
 
-    $("#requestProgress .bar").width("0%").text("");
+    $("#requestProgress .bar").width("100%").text("Error");
+    setTimeout(function() { 
+      $("#requestProgress .bar").width("0%").hide(); 
+    }, 500);
     $("#btnSubmit").button("reset");
   };
   var onProgress = function(data) {
@@ -96,7 +99,7 @@ function btnSubmit_do() {
         url: "status/" + data.result_id,
         statusCode: {
           200: onSuccess,
-          206: onProgress,
+          202: onProgress,
         }
       }).fail(onError);
     }, 1000);
@@ -109,7 +112,7 @@ function btnSubmit_do() {
     data: JSON.stringify(request),
     statusCode: {
       200: onSuccess,
-      206: onProgress,
+      202: onProgress,
     },
   }).fail(onError);
 }

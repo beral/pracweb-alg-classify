@@ -2,7 +2,7 @@ from collections import namedtuple
 import numpy as np
 import pracweb.registry as reg
 
-Dataset = namedtuple('Dataset', 'learn control class_names')
+Dataset = namedtuple('Dataset', 'learn test class_names')
 Grid = namedtuple('Grid', 'left bottom right top width height')
 Model = namedtuple('Model', 'classifiers corrector')
 Problem = namedtuple('Problem', 'data model colormap grid')
