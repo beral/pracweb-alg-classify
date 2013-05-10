@@ -65,6 +65,8 @@ function btnSubmit_do() {
     console.log(data);
 
     visual.maps = data.maps;
+    metrics = data.metrics;
+    confusion_matrix = data.confusion_matrix;
     setTimeout(function() { redrawVisual(pracData); }, 0);
 
     $("#requestProgress .bar").width("100%").text("");
@@ -281,6 +283,10 @@ function redrawVisual(data) {
   redrawMap(width, height);
   redrawObjects(data);
   redrawLegend(data);
+  if (metrics)
+    drawMetrics(metrics);
+  if (confusion_matrix)
+    drawConfusionMatrix(confusion_matrix);
 }
 
 function redrawMap(width, height) {
@@ -378,6 +384,45 @@ function redrawLegend(data) {
     .remove()
 }
 
+function drawMetrics(data) {
+  var table = d3.select("#tblMetrics tbody");
+
+  var row = table.selectAll("tr")
+    .data(data, function(d, i) { return i; });
+
+  row.enter().append("tr");
+  row.exit().remove();
+  row.html(function(d, i) {
+    var tag = i? "td" : "th";
+    return d
+      .map(function(x) {
+        var num_x = Number(x);
+        if (Number.isFinite(num_x) && num_x < 1.0001)
+          x = num_x.toFixed(2);
+        return "<"+tag+">"+x+"</"+tag+">"; 
+      })
+      .join("");
+  });
+}
+
+function drawConfusionMatrix(data) {
+  var table = d3.select("#tblConfMatrix tbody");
+
+  var row = table.selectAll("tr")
+    .data(data, function(d, i) { return i; });
+
+  row.enter().append("tr");
+  row.exit().remove();
+  row.html(function(d, i) {
+    return d
+      .map(function(x, j) {
+        var tag = (i>0 && j>0)? "td" : "th";
+        return "<"+tag+">"+x+"</"+tag+">"; 
+      })
+      .join("");
+  });
+}
+
 function drawObjTable(data) {
   var table = d3.select("#objTable tbody");
   
@@ -421,6 +466,8 @@ function resizeViewport() {
 // Achtung: global variables!
 var pracData = [];
 var visual = new Object();
+var metrics = null;
+var confusion_matrix = null;
 var margin = {top: 20, right: 20, bottom: 30, left: 40};
 var viewport = null;
 
@@ -432,7 +479,7 @@ $(window).load(function() {
   $("#inputData").change(function() {
     pracData = parseInput($("#inputData").val());
     redrawVisual(pracData);
-    drawObjTable(pracData);
+    // drawObjTable(pracData);
   });
   $(window).resize(resizeViewport);
 
