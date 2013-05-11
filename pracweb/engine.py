@@ -40,7 +40,7 @@ def eval_model(model, problem):
     confusion_matrix = skm.confusion_matrix(y_true, y_pred, labels)
     precision, recall, fscore, support = metrics
 
-    metrics_data = [['Class name',
+    metrics_data = [['',
                      'Precision',
                      'Recall',
                      'F-Score',

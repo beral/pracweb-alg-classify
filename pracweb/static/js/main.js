@@ -64,9 +64,7 @@ function btnSubmit_do() {
   var onSuccess = function(data) {
     console.log(data);
 
-    visual.maps = data.maps;
-    metrics = data.metrics;
-    confusion_matrix = data.confusion_matrix;
+    last_result = data;
     setTimeout(function() { redrawVisual(pracData); }, 0);
 
     $("#requestProgress .bar").width("100%").text("");
@@ -205,6 +203,11 @@ function createVisual() {
   visual.x = d3.scale.linear().range([0, width]);
   visual.y = d3.scale.linear().range([height, 0]);
   visual.color = d3.scale.category10();
+  visual.heatmap = [
+    d3.rgb('#D0FFBF'), 
+    d3.rgb('#FAFC6A'), 
+    d3.rgb('#FF4C4C')
+  ];
 
   visual.xAxis = d3.svg.axis()
     .scale(visual.x)
@@ -283,10 +286,10 @@ function redrawVisual(data) {
   redrawMap(width, height);
   redrawObjects(data);
   redrawLegend(data);
-  if (metrics)
-    drawMetrics(metrics);
-  if (confusion_matrix)
-    drawConfusionMatrix(confusion_matrix);
+  if (last_result) {
+    drawMetrics(last_result.metrics);
+    drawConfusionMatrix(last_result.confusion_matrix);
+  }
 }
 
 function redrawMap(width, height) {
@@ -301,8 +304,8 @@ function redrawMap(width, height) {
     .style("opacity", showMap? 1 : 0);
 
   var mapKeys = [];
-  if (visual.maps)
-    mapKeys = Object.keys(visual.maps).sort();
+  if (last_result && last_result.maps)
+    mapKeys = Object.keys(last_result.maps).sort();
 
   var maps = d3.select("#mapSelect").selectAll("button")
     .data(mapKeys, function(d) { return d; });
@@ -317,7 +320,7 @@ function redrawMap(width, height) {
     d3.select(this).classed("btn-primary", isActive);
     if (isActive)
       viewport.select("image")
-        .attr("xlink:href", visual.maps[this.__data__]);
+        .attr("xlink:href", last_result.maps[this.__data__]);
   })
   maps.exit().remove();
 }
@@ -387,25 +390,46 @@ function redrawLegend(data) {
 function drawMetrics(data) {
   var table = d3.select("#tblMetrics tbody");
 
+  var heatmap = d3.scale.linear()
+    .domain([1, 0.5, 0])
+    .range(visual.heatmap);
+
   var row = table.selectAll("tr")
     .data(data, function(d, i) { return i; });
 
   row.enter().append("tr");
   row.exit().remove();
-  row.html(function(d, i) {
-    var tag = i? "td" : "th";
-    return d
-      .map(function(x) {
-        var num_x = Number(x);
-        if (Number.isFinite(num_x) && num_x < 1.0001)
-          x = num_x.toFixed(2);
-        return "<"+tag+">"+x+"</"+tag+">"; 
-      })
-      .join("");
+  row.each(function(d, i) {
+    var tr = d3.select(this);
+    tr.html("");
+    for (var j=0; j<d.length; ++j) {
+      var tag = (i>0 && j>0)? "td" : "th";
+      var cell = tr.append(tag);
+      if (i>0 && j > 0 && j < 4)
+        cell
+          .text(Number(d[j]).toFixed(2))
+          .style('background-color', heatmap(d[j]));
+      else if (i > 0 && j == 0)
+        cell.append("span")
+          .text(d[j])
+          .attr("class", "label")
+          .style("background-color", visual.color(d[j]));
+      else
+        cell.text(d[j]);
+    }
   });
 }
 
 function drawConfusionMatrix(data) {
+  var maxCount = 0;
+  for (var i=1; i<data.length; ++i)
+    for (var j=1; j<data[i].length; ++j)
+      maxCount = Math.max(maxCount, data[i][j]);
+
+  var heatmap = d3.scale.linear()
+    .domain([0, maxCount/2, maxCount])
+    .range(visual.heatmap);
+
   var table = d3.select("#tblConfMatrix tbody");
 
   var row = table.selectAll("tr")
@@ -413,13 +437,23 @@ function drawConfusionMatrix(data) {
 
   row.enter().append("tr");
   row.exit().remove();
-  row.html(function(d, i) {
-    return d
-      .map(function(x, j) {
-        var tag = (i>0 && j>0)? "td" : "th";
-        return "<"+tag+">"+x+"</"+tag+">"; 
-      })
-      .join("");
+  row.each(function(d, i) {
+    var tr = d3.select(this);
+    tr.html("");
+    for (var j=0; j<d.length; ++j) {
+      var tag = (i>0 && j>0)? "td" : "th";
+      var cell = tr.append(tag);
+      if (d[j] != '' && (i == 0 || j == 0))
+        cell.append("span")
+          .text(d[j])
+          .attr("class", "label")
+          .style("background-color", visual.color(d[j]));
+      else {
+        cell.text(d[j]);
+        if (d[j] !== '')
+          cell.style("background-color", heatmap(d[j]));
+      }
+    }
   });
 }
 
@@ -466,6 +500,7 @@ function resizeViewport() {
 // Achtung: global variables!
 var pracData = [];
 var visual = new Object();
+var last_result = null;
 var metrics = null;
 var confusion_matrix = null;
 var margin = {top: 20, right: 20, bottom: 30, left: 40};
