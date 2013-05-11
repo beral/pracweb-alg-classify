@@ -65,7 +65,7 @@ function btnSubmit_do() {
     console.log(data);
 
     last_result = data;
-    setTimeout(function() { redrawVisual(pracData); }, 0);
+    g_updateView();
 
     $("#requestProgress .bar").width("100%").text("");
     setTimeout(function() { 
@@ -89,8 +89,6 @@ function btnSubmit_do() {
     $("#btnSubmit").button("reset");
   };
   var onProgress = function(data) {
-    //console.log(data);
-    
     $("#requestProgress .bar")
       .width(data.progress+"%")
       .text(data.comment);
@@ -181,21 +179,6 @@ function generateData() {
   return data;
 }
 
-function smartExtent(data, accessor) {
-  if (!data.length)
-    return [0, 1];
-  if (data.length == 1)
-  {
-    var d = accessor(data[0]);
-    return [d-1, d+1];
-  }
-  var extent = d3.extent(data, accessor);
-  var delta = Math.max(1.0, 0.1 * (extent[1] - extent[0]));
-  extent[0] -= delta;
-  extent[1] += delta;
-  return extent;
-}
-
 function createVisual() {
   var width = $("#viewport").width() - margin.left - margin.right,
       height = $("#viewport").height() - margin.top - margin.bottom;
@@ -222,7 +205,8 @@ function createVisual() {
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
   // Map
-  viewport.append("image");
+  viewport.append("image").attr("id", "map");
+  visual.current_map = null;
 
   // X axis
   viewport
@@ -253,243 +237,240 @@ function createVisual() {
         .text("Y")
 }
 
-function redrawVisual(data) {
+function updateObjectView(data) {
   data = data.filter(function(d) { return d.valid; });
 
-  var width = $("#viewport").width() - margin.left - margin.right,
-      height = $("#viewport").height() - margin.top - margin.bottom;
+  visual.width = $("#viewport").width() - margin.left - margin.right,
+  visual.height = $("#viewport").height() - margin.top - margin.bottom;
 
-  visual.x
-    .range([0, width])
-    .domain(smartExtent(data, function(d) { return d.x; })).nice();
-  visual.y
-    .range([height, 0])
-    .domain(smartExtent(data, function(d) { return d.y; })).nice();
-  visual.color = d3.scale.category10();
+  updateAxes();
+  updateMap();
+  updateObjects();
+  updateLegend();
 
-  visual.xAxis.scale(visual.x); 
-  visual.yAxis.scale(visual.y); 
-
-  // X axis
-  viewport.select("#xAxis")
-    .transition()
-    .attr("transform", "translate(0," + height + ")")
-    .call(visual.xAxis)
-    .select(".label")
-      .attr("x", width)
-
-  // Y axis
-  viewport.select("#yAxis")
-    .transition()
-    .call(visual.yAxis)
-
-  redrawMap(width, height);
-  redrawObjects(data);
-  redrawLegend(data);
-  if (last_result) {
-    drawMetrics(last_result.metrics);
-    drawConfusionMatrix(last_result.confusion_matrix);
-  }
-}
-
-function redrawMap(width, height) {
-  var showMap = $("#toggleMap").hasClass("active");
-
-  viewport.select("image")
-    .transition()
-    .attr("x", 0)
-    .attr("y", 0)
-    .attr("width", width)
-    .attr("height", height)
-    .style("opacity", showMap? 1 : 0);
-
-  var mapKeys = [];
-  if (last_result && last_result.maps)
-    mapKeys = Object.keys(last_result.maps).sort();
-
-  var maps = d3.select("#mapSelect").selectAll("button")
-    .data(mapKeys, function(d) { return d; });
-  maps.enter().append("button")
-    .attr("class", "btn btn-block btn-small")
-    .text(function(d) { return d; })
-    .on("click", function() {
-      setTimeout(function() { redrawVisual(pracData); }, 0)
-    })
-  maps.each(function() {
-    var isActive = $(this).hasClass("active");
-    d3.select(this).classed("btn-primary", isActive);
-    if (isActive)
-      viewport.select("image")
-        .attr("xlink:href", last_result.maps[this.__data__]);
-  })
-  maps.exit().remove();
-}
-
-function redrawObjects(data) {
-  function transform(d, scale) {
-    s = "translate(" + visual.x(d.x) + "," + visual.y(d.y) + ")";
-    if (scale != null)
-      s += ", scale(" + scale + ")";
-    return s;
-  }
-
-  var showTrain = $("#toggleTrain").hasClass("active"),
-      showControl = $("#toggleControl").hasClass("active");
-
-  var object = viewport.selectAll(".dot")
-    .data(data, function(d) { return [d.line, d.t]; });
-
-  object.enter()
-    .append("path")
-      .attr("class", "dot")
-      .attr("transform", function(d) { return transform(d, 5); })
-      .attr("d", d3.svg.symbol()
-          .type(function(d) { return d.t? "circle" : "triangle-up"; })
-          .size(50))
-      .style("opacity", 0)
-
-  object
-    .transition()
-    .attr("transform", function(d) { return transform(d); })
-    .style("opacity", function(d) {
-      if (d.t)
-        return showControl? 0.8 : 0;
-      else
-        return showTrain? 0.8 : 0;
-    })
-    .style("fill", function(d) { return visual.color(d.c); });
-
-  object.exit()
-    .transition()
-    .attr("transform", function(d) { return transform(d, 5); })
-    .style("opacity", 0)
-    .remove();
-}
-
-function redrawLegend(data) {
-  var legend = d3.select("#legend").selectAll("li")
-    .data(visual.color.domain().sort(), function(d) { return d; });
-
-  enter = legend.enter()
-    .append("li")
-      .append("span")
-      .attr("class", "label")
-      .text(function(d) { return d; })
-      .style("background-color", visual.color);
-
-  legend
-    .transition()
-    .selectAll("span")
-      .text(function(d) { return d; })
-      .style("background-color", visual.color);
-
-  exit = legend.exit()
-    .remove()
-}
-
-function drawMetrics(data) {
-  var table = d3.select("#tblMetrics tbody");
-
-  var heatmap = d3.scale.linear()
-    .domain([1, 0.5, 0])
-    .range(visual.heatmap);
-
-  var row = table.selectAll("tr")
-    .data(data, function(d, i) { return i; });
-
-  row.enter().append("tr");
-  row.exit().remove();
-  row.each(function(d, i) {
-    var tr = d3.select(this);
-    tr.html("");
-    for (var j=0; j<d.length; ++j) {
-      var tag = (i>0 && j>0)? "td" : "th";
-      var cell = tr.append(tag);
-      if (i>0 && j > 0 && j < 4)
-        cell
-          .text(Number(d[j]).toFixed(2))
-          .style('background-color', heatmap(d[j]));
-      else if (i > 0 && j == 0)
-        cell.append("span")
-          .text(d[j])
-          .attr("class", "label")
-          .style("background-color", visual.color(d[j]));
-      else
-        cell.text(d[j]);
+  function updateAxes() {
+    function smartExtent(data, accessor) {
+      if (!data.length)
+        return [0, 1];
+      if (data.length == 1)
+      {
+        var d = accessor(data[0]);
+        return [d-1, d+1];
+      }
+      var extent = d3.extent(data, accessor);
+      var delta = Math.max(1.0, 0.1 * (extent[1] - extent[0]));
+      extent[0] -= delta;
+      extent[1] += delta;
+      return extent;
     }
-  });
+
+    visual.x
+      .range([0, visual.width])
+      .domain(smartExtent(data, function(d) { return d.x; })).nice();
+    visual.y
+      .range([visual.height, 0])
+      .domain(smartExtent(data, function(d) { return d.y; })).nice();
+    visual.color = d3.scale.category10();
+
+    visual.xAxis.scale(visual.x); 
+    visual.yAxis.scale(visual.y); 
+
+    // X axis
+    viewport.select("#xAxis")
+      .transition()
+      .attr("transform", "translate(0," + visual.height + ")")
+      .call(visual.xAxis)
+      .select(".label")
+        .attr("x", visual.width)
+
+    // Y axis
+    viewport.select("#yAxis")
+      .transition()
+      .call(visual.yAxis)
+  }
+
+  function updateMap() {
+    var showMap = $("#toggleMap").hasClass("active");
+
+    viewport.select("#map")
+      .transition()
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("width", visual.width)
+      .attr("height", visual.height)
+      .style("opacity", (showMap && visual.current_map)? 1 : 0)
+      .attr("xlink:href", visual.current_map);
+  }
+
+  function updateObjects() {
+    function transform(d, scale) {
+      s = "translate(" + visual.x(d.x) + "," + visual.y(d.y) + ")";
+      if (scale != null)
+        s += ", scale(" + scale + ")";
+      return s;
+    }
+
+    var showTrain = $("#toggleTrain").hasClass("active"),
+        showControl = $("#toggleControl").hasClass("active");
+
+    var object = viewport.selectAll(".dot")
+      .data(data, function(d) { return [d.line, d.t]; });
+
+    object.enter()
+      .append("path")
+        .attr("class", "dot")
+        .attr("transform", function(d) { return transform(d, 5); })
+        .attr("d", d3.svg.symbol()
+            .type(function(d) { return d.t? "circle" : "triangle-up"; })
+            .size(50))
+        .style("opacity", 0)
+
+    object
+      .transition()
+      .attr("transform", function(d) { return transform(d); })
+      .style("opacity", function(d) {
+        if (d.t)
+          return showControl? 0.8 : 0;
+        else
+          return showTrain? 0.8 : 0;
+      })
+      .style("fill", function(d) { return visual.color(d.c); });
+
+    object.exit()
+      .transition()
+      .attr("transform", function(d) { return transform(d, 5); })
+      .style("opacity", 0)
+      .remove();
+  }
+
+  function updateLegend() {
+    var legend = d3.select("#legend").selectAll("li")
+      .data(visual.color.domain().sort(), function(d) { return d; });
+
+    enter = legend.enter()
+      .append("li")
+        .append("span")
+        .attr("class", "label")
+        .text(function(d) { return d; })
+        .style("background-color", visual.color);
+
+    legend
+      .transition()
+      .selectAll("span")
+        .text(function(d) { return d; })
+        .style("background-color", visual.color);
+
+    exit = legend.exit()
+      .remove()
+  }
 }
 
-function drawConfusionMatrix(data) {
-  var maxCount = 0;
-  for (var i=1; i<data.length; ++i)
-    for (var j=1; j<data[i].length; ++j)
-      maxCount = Math.max(maxCount, data[i][j]);
+function updateResultView(data) {
+  var $widgets = $("#mapToggles, #tblMetrics, #tblConfMatrix");
 
-  var heatmap = d3.scale.linear()
-    .domain([0, maxCount/2, maxCount])
-    .range(visual.heatmap);
+  if (!data) {
+    $widgets.hide();
+    visual.current_map = null;
+  } else {
+    $widgets.show();
 
-  var table = d3.select("#tblConfMatrix tbody");
+    updateMapSelector(data.maps); 
+    updateMetricsTable(data.metrics);
+    updateConfusionMatrixTable(data.confusion_matrix);
+  }
 
-  var row = table.selectAll("tr")
-    .data(data, function(d, i) { return i; });
+  function updateMapSelector(data) {
+    var mapKeys = [];
+    if (data)
+      mapKeys = Object.keys(data).sort();
 
-  row.enter().append("tr");
-  row.exit().remove();
-  row.each(function(d, i) {
-    var tr = d3.select(this);
-    tr.html("");
-    for (var j=0; j<d.length; ++j) {
-      var tag = (i>0 && j>0)? "td" : "th";
-      var cell = tr.append(tag);
-      if (d[j] != '' && (i == 0 || j == 0))
-        cell.append("span")
-          .text(d[j])
-          .attr("class", "label")
-          .style("background-color", visual.color(d[j]));
-      else {
-        if (i == j)
-          cell.append("strong").text(d[j]);
+    var maps = d3.select("#mapSelect").selectAll("button")
+      .data(mapKeys, function(d) { return d; });
+    maps.enter().append("button")
+      .attr("class", "btn btn-block btn-small")
+      .text(function(d) { return d; })
+      .on("click", g_updateView)
+    maps.exit().remove();
+    maps.each(function() {
+      var isActive = $(this).hasClass("active");
+      d3.select(this).classed("btn-primary", isActive);
+      if (isActive)
+        visual.current_map = data[this.__data__];
+    })
+  }
+
+  function updateMetricsTable(data) {
+    var table = d3.select("#tblMetrics tbody");
+
+    var heatmap = d3.scale.linear()
+      .domain([1, 0.5, 0])
+      .range(visual.heatmap);
+
+    var row = table.selectAll("tr")
+      .data(data, function(d, i) { return i; });
+
+    row.enter().append("tr");
+    row.exit().remove();
+    row.each(function(d, i) {
+      var tr = d3.select(this);
+      tr.html("");
+      for (var j=0; j<d.length; ++j) {
+        var tag = (i>0 && j>0)? "td" : "th";
+        var cell = tr.append(tag);
+        if (i>0 && j > 0 && j < 4)
+          cell
+            .text(Number(d[j]).toFixed(2))
+            .style('background-color', heatmap(d[j]));
+        else if (i > 0 && j == 0)
+          cell.append("span")
+            .text(d[j])
+            .attr("class", "label")
+            .style("background-color", visual.color(d[j]));
         else
           cell.text(d[j]);
-        if (d[j] !== '')
-          cell.style("background-color", heatmap(d[j]));
       }
-    }
-  });
-}
+    });
+  }
 
-function drawObjTable(data) {
-  var table = d3.select("#objTable tbody");
-  
-  var object = table.selectAll(".object")
-    .data(data, function(d) { return [d.line, d.class, d.control] });
+  function updateConfusionMatrixTable(data) {
+    var maxCount = 0;
+    for (var i=1; i<data.length; ++i)
+      for (var j=1; j<data[i].length; ++j)
+        maxCount = Math.max(maxCount, data[i][j]);
 
-  object.enter().append("tr")
-    .attr("class", "object");
+    var heatmap = d3.scale.linear()
+      .domain([0, maxCount/2, maxCount])
+      .range(visual.heatmap);
 
-  object.each(function(d) {
-    var object = d3.select(this),
-        line = d.line + 1;
-    if (d.valid)
-      object
-        .classed("error", false)
-        .html("<td>" + line + "</td>"
-          + "<td>" + d.x + "</td>"
-          + "<td>" + d.y + "</td>"
-          + "<td>" + d.c + "</td>"
-          + "<td>" + (d.t? "" : "<i class=\"icon-ok\"></i>") + "</td>");
-    else
-      object
-        .classed("error", true)
-        .html("<td>" + line + "</td>"
-          + "<td colspan=4>" 
-          + "<span class=\"label label-important\">Синтаксическая ошибка</span>" 
-          + "<pre>" + d.text + "</pre></td>");
-  });
+    var table = d3.select("#tblConfMatrix tbody");
 
-  object.exit().remove();
+    var row = table.selectAll("tr")
+      .data(data, function(d, i) { return i; });
+
+    row.enter().append("tr");
+    row.exit().remove();
+    row.each(function(d, i) {
+      var tr = d3.select(this);
+      tr.html("");
+      for (var j=0; j<d.length; ++j) {
+        var tag = (i>0 && j>0)? "td" : "th";
+        var cell = tr.append(tag);
+        if (d[j] != '' && (i == 0 || j == 0))
+          cell.append("span")
+            .text(d[j])
+            .attr("class", "label")
+            .style("background-color", visual.color(d[j]));
+        else {
+          if (i == j)
+            cell.append("strong").text(d[j]);
+          else
+            cell.text(d[j]);
+          if (d[j] !== '')
+            cell.style("background-color", heatmap(d[j]));
+        }
+      }
+    });
+  }
 }
 
 function resizeViewport() {
@@ -509,6 +490,18 @@ var confusion_matrix = null;
 var margin = {top: 20, right: 20, bottom: 30, left: 40};
 var viewport = null;
 
+function async(f) {
+  setTimeout(f, 0);
+}
+
+function g_updateView() {
+  async(function() {
+    updateResultView(last_result);
+    updateObjectView(pracData);
+  });
+}
+
+
 // Initialization
 $(window).load(function() {
   $("#inputData").keyup(function() {
@@ -516,14 +509,14 @@ $(window).load(function() {
   });
   $("#inputData").change(function() {
     pracData = parseInput($("#inputData").val());
-    redrawVisual(pracData);
-    // drawObjTable(pracData);
+    last_result = null;
+    g_updateView();
   });
   $(window).resize(resizeViewport);
 
   $("#layerToggles button").click(function() { 
     $(this).toggleClass("btn-primary"); 
-    setTimeout(function() { redrawVisual(pracData); }, 0);
+    g_updateView();
   });
 
   resizeViewport();
