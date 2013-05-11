@@ -17,25 +17,6 @@
       textarea {
         font-family: Monospace;
       }
-  
-      .axis path,
-      .axis line {
-        fill: none;
-        stroke: #000;
-        shape-rendering: crispEdges;
-      }
-
-      .axis text {
-        font-size: 10px;
-      }
-
-      .dot {
-        stroke: #000;
-        opacity: 0.7;
-      }
-
-      #legend {
-      }
     </style>
 
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
@@ -104,7 +85,33 @@
         </div> <!-- /div left -->
         <div class="span6">
           <div class="well">
-            <svg id="viewport"></svg>
+            <button id="btnSave" class="btn btn-mini pull-right" onclick="btnSave_do()">
+              <i class="icon-picture"></i>Сохранить
+            </button>
+            <svg id="viewport" 
+                 version="1.1" 
+                 xmlns="http://www.w3.org/2000/svg" 
+                 xmlns:xlink="http://www.w3.org/1999/xlink">
+              <defs>
+                <style type="text/css"><![CDATA[
+                  .axis path,
+                  .axis line {
+                  fill: none;
+                  stroke: #000;
+                  shape-rendering: crispEdges;
+                  }
+
+                  .axis text {
+                  font-size: 10px;
+                  }
+
+                  .dot {
+                  stroke: #000;
+                  opacity: 0.7;
+                  }
+                ]]></style>
+              </defs>
+            </svg>
           </div>
           <table id="tblMetrics" class="table table-condensed table-striped">
             <thead>

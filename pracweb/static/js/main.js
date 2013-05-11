@@ -115,6 +115,68 @@ function btnSubmit_do() {
   }).fail(onError);
 }
 
+function btnSave_do() {
+  function getImageDataURL(url, success, error) {
+    var data, canvas, ctx;
+    var img = new Image();
+    img.onload = function(){
+      // Create the canvas element.
+      canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      // Get '2d' context and draw the image.
+      ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0);
+      // Get canvas data URL
+      try{
+        data = canvas.toDataURL();
+        success(data);
+      }catch(e){
+        error(e);
+      }
+    }
+    // Load image URL.
+    try{
+      img.src = url;
+    }catch(e){
+      error(e);
+    }
+  }
+  
+  function on_success(img_data) {
+    var svg_image = $("#viewport").clone().get(0);
+
+    if (img_data) {
+      d3.select(svg_image).select("#map")
+        .attr("xlink:href", img_data);
+    } else {
+      d3.select(svg_image).select("#map")
+        .remove();
+    }
+    
+    var tmp = document.createElement("div");
+    tmp.appendChild(svg_image);
+    
+    var text = tmp.innerHTML;
+    var data_uri = "data:image/svg+xml;charset=utf-8;base64," +
+      btoa(unescape(encodeURIComponent(text)));
+
+    var tmplink = document.createElement("a");
+    tmplink.href = data_uri;
+    tmplink.download = "pracweb_"+Date.now()+".svg";
+    document.body.appendChild(tmplink);
+    tmplink.click();
+    async(function() { tmplink.remove(); });
+  }
+  if (visual.current_map && $("#toggleMap").hasClass("active"))
+    getImageDataURL(
+        visual.current_map, 
+        on_success, 
+        function(e) { alert(e); });
+  else
+    on_success();
+}
+
 function parseInput(text) {
   var comment = /^\s*(?:\/\/.*)?$/;
   var object = /^\s*(\S+)\s+(\S+)\s+(\S+)\s+([01])\s*$/;
