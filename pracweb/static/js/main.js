@@ -355,13 +355,13 @@ function updateObjectView(data) {
     var showMap = $("#toggleMap").hasClass("active");
 
     viewport.select("#map")
+      .attr("xlink:href", visual.current_map);
       .transition()
       .attr("x", 0)
       .attr("y", 0)
       .attr("width", visual.width)
       .attr("height", visual.height)
       .style("opacity", (showMap && visual.current_map)? 1 : 0)
-      .attr("xlink:href", visual.current_map);
   }
 
   function updateObjects() {
