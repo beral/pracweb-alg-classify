@@ -449,7 +449,10 @@ function drawConfusionMatrix(data) {
           .attr("class", "label")
           .style("background-color", visual.color(d[j]));
       else {
-        cell.text(d[j]);
+        if (i == j)
+          cell.append("strong").text(d[j]);
+        else
+          cell.text(d[j]);
         if (d[j] !== '')
           cell.style("background-color", heatmap(d[j]));
       }
