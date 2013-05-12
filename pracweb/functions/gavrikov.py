@@ -51,7 +51,7 @@ class NeuralNet(object):
         self.net = buildNetwork(2, NEURALNET_HIDDEN_DIM, dim,
                                 hiddenclass=TanhLayer)
         trainer = BackpropTrainer(self.net, ds)
-        trainer.trainUntilConvergence(validationProportion=0.1, maxEpochs=1000, verbose=True)
+        trainer.trainUntilConvergence(validationProportion=0.1, maxEpochs=1000)
 
     def __call__(self, x):
         result = np.empty((x.shape[0], self.dim))

@@ -60,16 +60,24 @@ function btnSubmit_do() {
   };
 
   $("#btnSubmit").button("loading");
-  $("#requestProgress .bar").width("0%").show();
+  $("#requestProgress .bar")
+    .attr('data-percentage', 0)
+    .progressbar()
+    .show();
   var onSuccess = function(data) {
     console.log(data);
 
     last_result = data;
     g_updateView();
 
-    $("#requestProgress .bar").width("100%").text("");
+    $("#requestProgress .bar")
+      .attr('data-percentage', 100)
+      .progressbar();
     setTimeout(function() { 
-      $("#requestProgress .bar").width("0%").hide(); 
+      $("#requestProgress .bar")
+        .attr('data-percentage', 0)
+        .progressbar()
+        .hide(); 
     }, 500);
     $("#btnSubmit").button("reset");
   };
@@ -82,16 +90,23 @@ function btnSubmit_do() {
     + ' (' + jqxhr.statusText + ') ' + jqxhr.responseText
     + '</div>');
 
-    $("#requestProgress .bar").width("100%").text("Error");
+    $("#requestProgress .bar")
+      .addClass("bar-danger")
+      .attr('data-percentage', 100)
+      .progressbar();
     setTimeout(function() { 
-      $("#requestProgress .bar").width("0%").hide(); 
+      $("#requestProgress .bar")
+        .removeClass("bar-danger")
+        .attr('data-percentage', 0)
+        .progressbar()
+        .hide(); 
     }, 500);
     $("#btnSubmit").button("reset");
   };
   var onProgress = function(data) {
     $("#requestProgress .bar")
-      .width(data.progress+"%")
-      .text(data.comment);
+      .attr('data-percentage', data.progress)
+      .progressbar();
     setTimeout(function() {
       $.ajax({
         url: "api/status/" + data.result_id,
@@ -620,9 +635,6 @@ function updateStaticModelState() {
   }
 }
 
-function dlgModelSettings_show() {
-}
-
 // Achtung: global variables!
 var input = { objects: null, classifiers: null, correctors: null};
 var operators = null;
@@ -646,7 +658,7 @@ function g_updateView() {
 
 
 // Initialization
-$(window).load(function() {
+$(document).ready(function() {
   $("#inputData").keyup(function() {
     $("#inputData").change();
   });
@@ -662,8 +674,10 @@ $(window).load(function() {
     g_updateView();
   });
 
-  $("dlgModelSettings")
-    .on('show', dlgModelSettings_show);
+  $(".progress .bar").progressbar({
+    display_text: 1,
+    transition_delay: 0,
+  });
 
   $.getJSON('api/operations')
     .done(function(data) { 
