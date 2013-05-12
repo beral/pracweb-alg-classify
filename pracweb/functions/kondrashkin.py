@@ -42,7 +42,7 @@ class LinearPolynomial(Classifier):
 @classifier('decision_tree')
 class DecisionTree(Classifier):
     def __init__(self, x_train, y_train):
-        Classifier.__init__(self, DecisionTreeClassifier(), x_train, y_train)
+        Classifier.__init__(self, DecisionTreeClassifier(max_depth=1), x_train, y_train)
 
 
 @classifier('knn')
