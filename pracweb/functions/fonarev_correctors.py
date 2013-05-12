@@ -1,7 +1,5 @@
 import numpy as np
-from copy import deepcopy
 from pybrain.optimization import CMAES
-from copy import deepcopy
 import sys
 
 try:
@@ -149,7 +147,7 @@ class SpecialMonotoneAffine(object):
                 w = np.hstack([self.weights, new_weight])
                 predicted = np.dot(x[:, :, :oper_number], w)
                 predicted[predicted > 0.5] = 0.5
-                predicted[predcited < -0.5] = -0.5
+                predicted[predicted < -0.5] = -0.5
                 func_value = np.sum((predicted - y) ** 2)
 
                 if func_value < func_min:
