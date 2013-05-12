@@ -47,7 +47,10 @@ class MonotoneLinear(object):
         print >> sys.stderr, "weights size", self.weights.shape
         print >> sys.stderr, "weights: ", self.weights
 
-        return np.dot(x_val - 0.5, self.weights) + 0.5
+        result = np.dot(x_val - 0.5, self.weights) + 0.5
+        result[result > 1] = 1
+        result[result < 0] = 0
+        return result
 
 @corrector("monotone_affine")
 class MonotoneAffine(object):
@@ -78,7 +81,10 @@ class MonotoneAffine(object):
         print >> sys.stderr, "weights: ", self.weights
 
         x = np.dstack([np.ones(x_val.shape[0:1]), x_val])
-        return np.dot(x - 0.5, self.weights) + 0.5
+        result = np.dot(x - 0.5, self.weights) + 0.5
+        result[result > 1] = 1
+        result[result < 0] = 0
+        return result
 
 @corrector("special_affine")
 class SpecialAffine(object):
@@ -109,7 +115,10 @@ class SpecialAffine(object):
         print >> sys.stderr, "weights size", self.weights.shape
         print >> sys.stderr, "weights: ", self.weights
 
-        return np.dot(x_val - 0.5, self.weights) + 0.5
+        result = np.dot(x_val - 0.5, self.weights) + 0.5
+        result[result > 1] = 1
+        result[result < 0] = 0
+        return result
 
 @corrector("special_monotone_affine")
 class SpecialMonotoneAffine(object):
@@ -140,7 +149,10 @@ class SpecialMonotoneAffine(object):
         print >> sys.stderr, "weights size", self.weights.shape
         print >> sys.stderr, "weights: ", self.weights
 
-        return np.dot(x_val - 0.5, self.weights) + 0.5
+        result = np.dot(x_val - 0.5, self.weights) + 0.5
+        result[result > 1] = 1
+        result[result < 0] = 0
+        return result
 
 class UnstableMonotoneLinear(object):
     def __init__(self, x_learn, y_learn):
