@@ -9,7 +9,6 @@ _float2d = ndpointer(ctypes.c_double, ndim=2, flags='CONTIGUOUS')
 _uint2d = ndpointer(ctypes.c_size_t, ndim=2, flags='CONTIGUOUS')
 _byte2d = ndpointer(ctypes.c_uint8, ndim=2, flags='CONTIGUOUS')
 
-print 'Loading visual lib from', os.path.dirname(__file__)
 _visual_lib = load_library(
     'visual',
     os.path.dirname(__file__)

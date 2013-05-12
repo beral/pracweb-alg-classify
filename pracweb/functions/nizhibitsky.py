@@ -31,5 +31,10 @@ class ProbaCentroid(NearestCentroid):
 
 @classifier('logarithmic_balls')
 class LogarithmicBalls(Classifier):
+    description = {
+        'name': u'Логарифмические шары',
+        'author': u'Е. Нижибицкий',
+    }
+
     def __init__(self, x_train, y_train):
         Classifier.__init__(self, ProbaCentroid(), x_train, y_train)

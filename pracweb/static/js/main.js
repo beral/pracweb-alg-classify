@@ -547,7 +547,7 @@ function opTitle(table, name) {
   var title = table[name].name,
       author = table[name].author;
   if (author)
-    title += " (" + author + ")";
+    title += " (" + author.replace(' ', '&nbsp;') + ")";
   return title;
 }
 
@@ -576,7 +576,7 @@ function updateModelState() {
 
     list.enter().append("li");
     list.exit().remove();
-    list.text(function(d) { return opTitle(table, d); });
+    list.html(function(d) { return opTitle(table, d); });
   }
 
   function updateDialogView(selector, src, table) {
@@ -592,7 +592,7 @@ function updateModelState() {
     list.exit().remove();
     list
       .select("a")
-        .text(function(d) { return opTitle(table, d); });
+        .html(function(d) { return opTitle(table, d); });
   }
 }
 
@@ -612,7 +612,7 @@ function updateStaticModelState() {
       .data(Object.keys(table), function(d) { return d; })
       .enter().append("li")
       .append("a")
-          .text(function(d) { return opTitle(table, d); })
+          .html(function(d) { return opTitle(table, d); })
           .on('click', function() {
             dest.push(this.__data__);
             updateModelState();
