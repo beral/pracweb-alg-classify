@@ -21,6 +21,7 @@ def nclass_to_nbinary(y):
 
 @corrector("monotone_linear")
 class MonotoneLinear(object):
+    description = {'author': u'А. Фонарев', 'name': u'Монотонная линейная КО'}
     def __init__(self, x_learn, y_learn):
         _, y = nclass_to_nbinary(y_learn)
         x = x_learn
@@ -52,8 +53,12 @@ class MonotoneLinear(object):
         result[result < 0] = 0
         return result
 
+    def describe():
+        return {'weights': list(self.weights)}
+
 @corrector("monotone_affine")
 class MonotoneAffine(object):
+    description = {'author': u'А. Фонарев', 'name': u'Монотонная аффинная КО'}
     def __init__(self, x_learn, y_learn):
         _, y = nclass_to_nbinary(y_learn)
         x = np.dstack([np.ones(x_learn.shape[0:1]), x_learn])
@@ -86,8 +91,12 @@ class MonotoneAffine(object):
         result[result < 0] = 0
         return result
 
+    def describe():
+        return {'weights': list(self.weights)}
+
 @corrector("special_affine")
 class SpecialAffine(object):
+    description = {'author': u'А. Фонарев', 'name': u'Специальная аффинная КО'}
     def __init__(self, x_learn, y_learn):
         _, y = nclass_to_nbinary(y_learn)
         x = x_learn
@@ -120,8 +129,12 @@ class SpecialAffine(object):
         result[result < 0] = 0
         return result
 
+    def describe():
+        return {'weights': list(self.weights)}
+
 @corrector("special_monotone_affine")
 class SpecialMonotoneAffine(object):
+    description = {'author': u'А. Фонарев', 'name': u'Специальная монотонная аффинная КО'}
     def __init__(self, x_learn, y_learn):
         _, y = nclass_to_nbinary(y_learn)
         x = x_learn
@@ -153,6 +166,9 @@ class SpecialMonotoneAffine(object):
         result[result > 1] = 1
         result[result < 0] = 0
         return result
+
+    def describe():
+        return {'weights': list(self.weights)}
 
 class UnstableMonotoneLinear(object):
     def __init__(self, x_learn, y_learn):
