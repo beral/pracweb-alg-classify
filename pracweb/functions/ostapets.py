@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-#from pybrain.optimization import CMAES
 import sys
 
 try:
@@ -11,6 +10,7 @@ except ImportError:
     classifier = lambda x: lambda y: y
     corrector = classifier
     
+
 @corrector("independent_optimum")
 class IndependentOptimum(object):
     description = {'author': u'А. Остапец', 'name': u'Выбирающая независимый оптимум КО'}
@@ -28,8 +28,7 @@ class IndependentOptimum(object):
         print >> sys.stderr, "x size", x_val.shape
         print >> sys.stderr, "algo number", self.oper_number+1
 
-        result = x_val[:,:,self.oper_number]
-        return result
+        return np.array(x_val[:,:,self.oper_number])
 
     def describe(self):
         return {'algo number': self.oper_number}
