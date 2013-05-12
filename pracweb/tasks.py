@@ -15,7 +15,17 @@ celery = Celery("engine",
 
 @celery.task
 def get_functions():
-    return classifiers.keys(), correctors.keys()
+    def description(x, name):
+        if hasattr(x, 'description'):
+            return x.description
+        else:
+            return {'name': name, 'author': ''}
+
+    def describe(table):
+        return dict((name, description(table[name], name))
+                    for name in table)
+
+    return describe(classifiers), describe(correctors)
 
 
 @celery.task

@@ -18,14 +18,25 @@ app = Flask('pracweb')
 
 @app.route('/')
 def index():
-    classifiers, correctors = tasks.get_functions.delay().get()
-    return flask.render_template(
-        'index.html',
-        classifiers=classifiers,
-        correctors=correctors)
+    return flask.render_template('index.html')
 
 
-@app.route('/classifier', methods=['POST'])
+@app.route('/api/operations')
+def operations():
+    classifiers, correctors = tasks.get_functions.delay().get(timeout=1)
+    return flask.jsonify({
+        'available': {
+            'classifiers': classifiers,
+            'correctors': correctors,
+        },
+        'default': {
+            'classifiers': ['naive_bayesian'],
+            'correctors': ['mean'],
+        },
+    })
+
+
+@app.route('/api/classifier', methods=['POST'])
 def classifier():
     task = tasks.process_request.delay(
         request.json,
@@ -34,7 +45,7 @@ def classifier():
         flask.url_for('check_status', task_id=task.id))
 
 
-@app.route('/status/<task_id>')
+@app.route('/api/status/<task_id>')
 def check_status(task_id):
     task = AsyncResult(task_id, app=tasks.celery)
     if task.ready():

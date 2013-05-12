@@ -4,7 +4,7 @@ import pracweb.registry as reg
 
 Dataset = namedtuple('Dataset', 'learn test class_names')
 Grid = namedtuple('Grid', 'left bottom right top width height')
-Model = namedtuple('Model', 'classifiers corrector')
+Model = namedtuple('Model', 'classifiers correctors')
 Problem = namedtuple('Problem', 'data model colormap grid')
 
 
@@ -53,14 +53,15 @@ def parse_model(model):
     classifiers = model['classifiers']
     ensure(isinstance(classifiers, list) and classifiers,
            "no classifier selected")
-    classifiers = set(classifiers)
     ensure(all(name in reg.classifiers for name in classifiers),
            "invalid classifier name")
 
-    corrector = model['corrector']
-    ensure(corrector in reg.correctors,
+    correctors = model['correctors']
+    ensure(isinstance(correctors, list) and correctors,
+           "no classifier selected")
+    ensure(all(name in reg.correctors for name in correctors),
            "invalid corrector name")
-    return Model(classifiers, corrector)
+    return Model(classifiers, correctors)
 
 
 def parse_colors(colors):

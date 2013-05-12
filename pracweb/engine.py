@@ -40,9 +40,10 @@ def solve(problem):
         sample = make_balanced_sample(problem.data.learn)
         classifiers.append(registry.classifiers[c](sample[0], sample[1]))
 
-    corrector = registry.correctors[problem.model.corrector](
-            apply_classifiers(classifiers, problem.data.learn[0], n_classes),
-            problem.data.learn[1])
+    # TODO: use all correctors, not [0]
+    corrector = registry.correctors[problem.model.correctors[0]](
+        apply_classifiers(classifiers, problem.data.learn[0], n_classes),
+        problem.data.learn[1])
 
     return classifiers, corrector
 

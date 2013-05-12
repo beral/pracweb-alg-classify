@@ -33,7 +33,7 @@ function btnSubmit_do() {
       x_range = visual.x.range(),
       y_range = visual.y.range();
 
-  var objects = pracData
+  var objects = input.objects
       .filter(function(d) { return d.valid; });
   var request = {
     data: {
@@ -45,8 +45,8 @@ function btnSubmit_do() {
         .map(function(d) { return {x: d.x, y: d.y, c: d.c}; }),
     },
     model: {
-      classifiers: $("#selClassifiers").val(),
-      corrector: $("#selCorrector").val(),
+      classifiers: input.classifiers,
+      correctors: input.correctors,
     },
     colors: colormap,
     grid: {
@@ -94,7 +94,7 @@ function btnSubmit_do() {
       .text(data.comment);
     setTimeout(function() {
       $.ajax({
-        url: "status/" + data.result_id,
+        url: "api/status/" + data.result_id,
         statusCode: {
           200: onSuccess,
           202: onProgress,
@@ -103,7 +103,7 @@ function btnSubmit_do() {
     }, 1000);
   };
   $.ajax({
-    url: "classifier",
+    url: "api/classifier",
     type: 'POST',
     contentType: 'application/json',
     processData: false,
@@ -543,8 +543,89 @@ function resizeViewport() {
     .height(fullSize);
 }
 
+function opTitle(table, name) {
+  var title = table[name].name,
+      author = table[name].author;
+  if (author)
+    title += " (" + author + ")";
+  return title;
+}
+
+function updateModelState() {
+  updateMainView(
+      "#lstClassifiers", 
+      input.classifiers, 
+      operators.classifiers);
+  updateMainView(
+      "#lstCorrectors", 
+      input.correctors, 
+      operators.correctors);
+
+  updateDialogView(
+      "#lstClassifiersSelected", 
+      input.classifiers, 
+      operators.classifiers);
+  updateDialogView(
+      "#lstCorrectorsSelected", 
+      input.correctors, 
+      operators.correctors);
+
+  function updateMainView(selector, src, table) {
+    var list = d3.select(selector).selectAll("li")
+      .data(src, function(d, i) { return i; });
+
+    list.enter().append("li");
+    list.exit().remove();
+    list.text(function(d) { return opTitle(table, d); });
+  }
+
+  function updateDialogView(selector, src, table) {
+    var list = d3.select(selector).selectAll("li")
+      .data(src, function(d, i) { return i; });
+
+    list.enter().append("li")
+      .append("a")
+          .on('click', function(d, i) {
+            src.splice(i, 1);
+            updateModelState();
+          });
+    list.exit().remove();
+    list
+      .select("a")
+        .text(function(d) { return opTitle(table, d); });
+  }
+}
+
+function updateStaticModelState() {
+  updateDialogView(
+      "#lstClassifiersAvailable", 
+      input.classifiers, 
+      operators.classifiers);
+  updateDialogView(
+      "#lstCorrectorsAvailable", 
+      input.correctors, 
+      operators.correctors);
+
+  function updateDialogView(selector, dest, table) {
+    $(selector).empty();
+    d3.select(selector).selectAll("li")
+      .data(Object.keys(table), function(d) { return d; })
+      .enter().append("li")
+      .append("a")
+          .text(function(d) { return opTitle(table, d); })
+          .on('click', function() {
+            dest.push(this.__data__);
+            updateModelState();
+          });
+  }
+}
+
+function dlgModelSettings_show() {
+}
+
 // Achtung: global variables!
-var pracData = [];
+var input = { objects: null, classifiers: null, correctors: null};
+var operators = null;
 var visual = new Object();
 var last_result = null;
 var metrics = null;
@@ -559,7 +640,7 @@ function async(f) {
 function g_updateView() {
   async(function() {
     updateResultView(last_result);
-    updateObjectView(pracData);
+    updateObjectView(input.objects);
   });
 }
 
@@ -570,7 +651,7 @@ $(window).load(function() {
     $("#inputData").change();
   });
   $("#inputData").change(function() {
-    pracData = parseInput($("#inputData").val());
+    input.objects = parseInput($("#inputData").val());
     last_result = null;
     g_updateView();
   });
@@ -580,6 +661,19 @@ $(window).load(function() {
     $(this).toggleClass("btn-primary"); 
     g_updateView();
   });
+
+  $("dlgModelSettings")
+    .on('show', dlgModelSettings_show);
+
+  $.getJSON('api/operations')
+    .done(function(data) { 
+      console.log("operations", data);
+      operators = data.available;
+      input.classifiers = data.default.classifiers;
+      input.correctors = data.default.correctors;
+      updateStaticModelState();
+      updateModelState();
+    })
 
   resizeViewport();
   createVisual();
