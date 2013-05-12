@@ -33,10 +33,17 @@ function btnSubmit_do() {
       x_range = visual.x.range(),
       y_range = visual.y.range();
 
+  var objects = pracData
+      .filter(function(d) { return d.valid; });
   var request = {
-    objects: pracData
-      .filter(function(d) { return d.valid; })
-      .map(function(d) { return {x: d.x, y: d.y, c: d.c, t: d.t}; }),
+    data: {
+      learn: objects
+        .filter(function(d) { return !d.t; })
+        .map(function(d) { return {x: d.x, y: d.y, c: d.c}; }),
+      test: objects
+        .filter(function(d) { return d.t; })
+        .map(function(d) { return {x: d.x, y: d.y, c: d.c}; }),
+    },
     model: {
       classifiers: $("#selClassifiers").val(),
       corrector: $("#selCorrector").val(),
@@ -55,10 +62,10 @@ function btnSubmit_do() {
   $("#btnSubmit").button("loading");
   $("#requestProgress .bar").width("0%").show();
   var onSuccess = function(data) {
-    //console.log(data);
+    console.log(data);
 
-    visual.maps = data.maps;
-    setTimeout(function() { redrawVisual(pracData); }, 0);
+    last_result = data;
+    g_updateView();
 
     $("#requestProgress .bar").width("100%").text("");
     setTimeout(function() { 
@@ -75,12 +82,13 @@ function btnSubmit_do() {
     + ' (' + jqxhr.statusText + ') ' + jqxhr.responseText
     + '</div>');
 
-    $("#requestProgress .bar").width("0%").text("");
+    $("#requestProgress .bar").width("100%").text("Error");
+    setTimeout(function() { 
+      $("#requestProgress .bar").width("0%").hide(); 
+    }, 500);
     $("#btnSubmit").button("reset");
   };
   var onProgress = function(data) {
-    //console.log(data);
-    
     $("#requestProgress .bar")
       .width(data.progress+"%")
       .text(data.comment);
@@ -89,7 +97,7 @@ function btnSubmit_do() {
         url: "status/" + data.result_id,
         statusCode: {
           200: onSuccess,
-          206: onProgress,
+          202: onProgress,
         }
       }).fail(onError);
     }, 1000);
@@ -102,9 +110,71 @@ function btnSubmit_do() {
     data: JSON.stringify(request),
     statusCode: {
       200: onSuccess,
-      206: onProgress,
+      202: onProgress,
     },
   }).fail(onError);
+}
+
+function btnSave_do() {
+  function getImageDataURL(url, success, error) {
+    var data, canvas, ctx;
+    var img = new Image();
+    img.onload = function(){
+      // Create the canvas element.
+      canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      // Get '2d' context and draw the image.
+      ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0);
+      // Get canvas data URL
+      try{
+        data = canvas.toDataURL();
+        success(data);
+      }catch(e){
+        error(e);
+      }
+    }
+    // Load image URL.
+    try{
+      img.src = url;
+    }catch(e){
+      error(e);
+    }
+  }
+  
+  function on_success(img_data) {
+    var svg_image = $("#viewport").clone().get(0);
+
+    if (img_data) {
+      d3.select(svg_image).select("#map")
+        .attr("xlink:href", img_data);
+    } else {
+      d3.select(svg_image).select("#map")
+        .remove();
+    }
+    
+    var tmp = document.createElement("div");
+    tmp.appendChild(svg_image);
+    
+    var text = tmp.innerHTML;
+    var data_uri = "data:image/svg+xml;charset=utf-8;base64," +
+      btoa(unescape(encodeURIComponent(text)));
+
+    var tmplink = document.createElement("a");
+    tmplink.href = data_uri;
+    tmplink.download = "pracweb_"+Date.now()+".svg";
+    document.body.appendChild(tmplink);
+    tmplink.click();
+    async(function() { tmplink.remove(); });
+  }
+  if (visual.current_map && $("#toggleMap").hasClass("active"))
+    getImageDataURL(
+        visual.current_map, 
+        on_success, 
+        function(e) { alert(e); });
+  else
+    on_success();
 }
 
 function parseInput(text) {
@@ -171,21 +241,6 @@ function generateData() {
   return data;
 }
 
-function smartExtent(data, accessor) {
-  if (!data.length)
-    return [0, 1];
-  if (data.length == 1)
-  {
-    var d = accessor(data[0]);
-    return [d-1, d+1];
-  }
-  var extent = d3.extent(data, accessor);
-  var delta = Math.max(1.0, 0.1 * (extent[1] - extent[0]));
-  extent[0] -= delta;
-  extent[1] += delta;
-  return extent;
-}
-
 function createVisual() {
   var width = $("#viewport").width() - margin.left - margin.right,
       height = $("#viewport").height() - margin.top - margin.bottom;
@@ -193,6 +248,11 @@ function createVisual() {
   visual.x = d3.scale.linear().range([0, width]);
   visual.y = d3.scale.linear().range([height, 0]);
   visual.color = d3.scale.category10();
+  visual.heatmap = [
+    d3.rgb('#D0FFBF'), 
+    d3.rgb('#FAFC6A'), 
+    d3.rgb('#FF4C4C')
+  ];
 
   visual.xAxis = d3.svg.axis()
     .scale(visual.x)
@@ -207,7 +267,8 @@ function createVisual() {
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
   // Map
-  viewport.append("image");
+  viewport.append("image").attr("id", "map");
+  visual.current_map = null;
 
   // X axis
   viewport
@@ -238,166 +299,240 @@ function createVisual() {
         .text("Y")
 }
 
-function redrawVisual(data) {
+function updateObjectView(data) {
   data = data.filter(function(d) { return d.valid; });
 
-  var width = $("#viewport").width() - margin.left - margin.right,
-      height = $("#viewport").height() - margin.top - margin.bottom;
+  visual.width = $("#viewport").width() - margin.left - margin.right,
+  visual.height = $("#viewport").height() - margin.top - margin.bottom;
 
-  visual.x
-    .range([0, width])
-    .domain(smartExtent(data, function(d) { return d.x; })).nice();
-  visual.y
-    .range([height, 0])
-    .domain(smartExtent(data, function(d) { return d.y; })).nice();
-  visual.color = d3.scale.category10();
+  updateAxes();
+  updateMap();
+  updateObjects();
+  updateLegend();
 
-  visual.xAxis.scale(visual.x); 
-  visual.yAxis.scale(visual.y); 
+  function updateAxes() {
+    function smartExtent(data, accessor) {
+      if (!data.length)
+        return [0, 1];
+      if (data.length == 1)
+      {
+        var d = accessor(data[0]);
+        return [d-1, d+1];
+      }
+      var extent = d3.extent(data, accessor);
+      var delta = Math.max(1.0, 0.1 * (extent[1] - extent[0]));
+      extent[0] -= delta;
+      extent[1] += delta;
+      return extent;
+    }
 
-  // X axis
-  viewport.select("#xAxis")
-    .transition()
-    .attr("transform", "translate(0," + height + ")")
-    .call(visual.xAxis)
-    .select(".label")
-      .attr("x", width)
+    visual.x
+      .range([0, visual.width])
+      .domain(smartExtent(data, function(d) { return d.x; })).nice();
+    visual.y
+      .range([visual.height, 0])
+      .domain(smartExtent(data, function(d) { return d.y; })).nice();
+    visual.color = d3.scale.category10();
 
-  // Y axis
-  viewport.select("#yAxis")
-    .transition()
-    .call(visual.yAxis)
+    visual.xAxis.scale(visual.x); 
+    visual.yAxis.scale(visual.y); 
 
-  redrawMap(width, height);
-  redrawObjects(data);
-  redrawLegend(data);
-}
+    // X axis
+    viewport.select("#xAxis")
+      .transition()
+      .attr("transform", "translate(0," + visual.height + ")")
+      .call(visual.xAxis)
+      .select(".label")
+        .attr("x", visual.width)
 
-function redrawMap(width, height) {
-  var showMap = $("#toggleMap").hasClass("active");
-
-  viewport.select("image")
-    .transition()
-    .attr("x", 0)
-    .attr("y", 0)
-    .attr("width", width)
-    .attr("height", height)
-    .style("opacity", showMap? 1 : 0);
-
-  var mapKeys = [];
-  if (visual.maps)
-    mapKeys = Object.keys(visual.maps).sort();
-
-  var maps = d3.select("#mapSelect").selectAll("button")
-    .data(mapKeys, function(d) { return d; });
-  maps.enter().append("button")
-    .attr("class", "btn btn-block btn-small")
-    .text(function(d) { return d; })
-    .on("click", function() {
-      setTimeout(function() { redrawVisual(pracData); }, 0)
-    })
-  maps.each(function() {
-    var isActive = $(this).hasClass("active");
-    d3.select(this).classed("btn-primary", isActive);
-    if (isActive)
-      viewport.select("image")
-        .attr("xlink:href", visual.maps[this.__data__]);
-  })
-  maps.exit().remove();
-}
-
-function redrawObjects(data) {
-  function transform(d, scale) {
-    s = "translate(" + visual.x(d.x) + "," + visual.y(d.y) + ")";
-    if (scale != null)
-      s += ", scale(" + scale + ")";
-    return s;
+    // Y axis
+    viewport.select("#yAxis")
+      .transition()
+      .call(visual.yAxis)
   }
 
-  var showTrain = $("#toggleTrain").hasClass("active"),
-      showControl = $("#toggleControl").hasClass("active");
+  function updateMap() {
+    var showMap = $("#toggleMap").hasClass("active");
 
-  var object = viewport.selectAll(".dot")
-    .data(data, function(d) { return [d.line, d.t]; });
+    viewport.select("#map")
+      .attr("xlink:href", visual.current_map)
+      .transition()
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("width", visual.width)
+      .attr("height", visual.height)
+      .style("opacity", (showMap && visual.current_map)? 1 : 0);
+  }
 
-  object.enter()
-    .append("path")
-      .attr("class", "dot")
+  function updateObjects() {
+    function transform(d, scale) {
+      s = "translate(" + visual.x(d.x) + "," + visual.y(d.y) + ")";
+      if (scale != null)
+        s += ", scale(" + scale + ")";
+      return s;
+    }
+
+    var showTrain = $("#toggleTrain").hasClass("active"),
+        showControl = $("#toggleControl").hasClass("active");
+
+    var object = viewport.selectAll(".dot")
+      .data(data, function(d) { return [d.line, d.t]; });
+
+    object.enter()
+      .append("path")
+        .attr("class", "dot")
+        .attr("transform", function(d) { return transform(d, 5); })
+        .attr("d", d3.svg.symbol()
+            .type(function(d) { return d.t? "circle" : "triangle-up"; })
+            .size(50))
+        .style("opacity", 0)
+
+    object
+      .transition()
+      .attr("transform", function(d) { return transform(d); })
+      .style("opacity", function(d) {
+        if (d.t)
+          return showControl? 0.8 : 0;
+        else
+          return showTrain? 0.8 : 0;
+      })
+      .style("fill", function(d) { return visual.color(d.c); });
+
+    object.exit()
+      .transition()
       .attr("transform", function(d) { return transform(d, 5); })
-      .attr("d", d3.svg.symbol()
-          .type(function(d) { return d.t? "circle" : "triangle-up"; })
-          .size(50))
       .style("opacity", 0)
+      .remove();
+  }
 
-  object
-    .transition()
-    .attr("transform", function(d) { return transform(d); })
-    .style("opacity", function(d) {
-      if (d.t)
-        return showControl? 0.8 : 0;
-      else
-        return showTrain? 0.8 : 0;
+  function updateLegend() {
+    var legend = d3.select("#legend").selectAll("li")
+      .data(visual.color.domain().sort(), function(d) { return d; });
+
+    enter = legend.enter()
+      .append("li")
+        .append("span")
+        .attr("class", "label")
+        .text(function(d) { return d; })
+        .style("background-color", visual.color);
+
+    legend
+      .transition()
+      .selectAll("span")
+        .text(function(d) { return d; })
+        .style("background-color", visual.color);
+
+    exit = legend.exit()
+      .remove()
+  }
+}
+
+function updateResultView(data) {
+  var $widgets = $("#mapToggles, #tblMetrics, #tblConfMatrix");
+
+  if (!data) {
+    $widgets.hide();
+    visual.current_map = null;
+  } else {
+    $widgets.show();
+
+    updateMapSelector(data.maps); 
+    updateMetricsTable(data.metrics);
+    updateConfusionMatrixTable(data.confusion_matrix);
+  }
+
+  function updateMapSelector(data) {
+    var mapKeys = [];
+    if (data)
+      mapKeys = Object.keys(data).sort();
+
+    var maps = d3.select("#mapSelect").selectAll("button")
+      .data(mapKeys, function(d) { return d; });
+    maps.enter().append("button")
+      .attr("class", "btn btn-block btn-small")
+      .text(function(d) { return d; })
+      .on("click", g_updateView)
+    maps.exit().remove();
+    maps.each(function() {
+      var isActive = $(this).hasClass("active");
+      d3.select(this).classed("btn-primary", isActive);
+      if (isActive)
+        visual.current_map = data[this.__data__];
     })
-    .style("fill", function(d) { return visual.color(d.c); });
+  }
 
-  object.exit()
-    .transition()
-    .attr("transform", function(d) { return transform(d, 5); })
-    .style("opacity", 0)
-    .remove();
-}
+  function updateMetricsTable(data) {
+    var table = d3.select("#tblMetrics tbody");
 
-function redrawLegend(data) {
-  var legend = d3.select("#legend").selectAll("li")
-    .data(visual.color.domain().sort(), function(d) { return d; });
+    var heatmap = d3.scale.linear()
+      .domain([1, 0.5, 0])
+      .range(visual.heatmap);
 
-  enter = legend.enter()
-    .append("li")
-      .append("span")
-      .attr("class", "label")
-      .text(function(d) { return d; })
-      .style("background-color", visual.color);
+    var row = table.selectAll("tr")
+      .data(data, function(d, i) { return i; });
 
-  legend
-    .transition()
-    .selectAll("span")
-      .text(function(d) { return d; })
-      .style("background-color", visual.color);
+    row.enter().append("tr");
+    row.exit().remove();
+    row.each(function(d, i) {
+      var tr = d3.select(this);
+      tr.html("");
+      for (var j=0; j<d.length; ++j) {
+        var tag = (i>0 && j>0)? "td" : "th";
+        var cell = tr.append(tag);
+        if (i>0 && j > 0 && j < 4)
+          cell
+            .text(Number(d[j]).toFixed(2))
+            .style('background-color', heatmap(d[j]));
+        else if (i > 0 && j == 0)
+          cell.append("span")
+            .text(d[j])
+            .attr("class", "label")
+            .style("background-color", visual.color(d[j]));
+        else
+          cell.text(d[j]);
+      }
+    });
+  }
 
-  exit = legend.exit()
-    .remove()
-}
+  function updateConfusionMatrixTable(data) {
+    var maxCount = 0;
+    for (var i=1; i<data.length; ++i)
+      for (var j=1; j<data[i].length; ++j)
+        maxCount = Math.max(maxCount, data[i][j]);
 
-function drawObjTable(data) {
-  var table = d3.select("#objTable tbody");
-  
-  var object = table.selectAll(".object")
-    .data(data, function(d) { return [d.line, d.class, d.control] });
+    var heatmap = d3.scale.linear()
+      .domain([0, maxCount/2, maxCount])
+      .range(visual.heatmap);
 
-  object.enter().append("tr")
-    .attr("class", "object");
+    var table = d3.select("#tblConfMatrix tbody");
 
-  object.each(function(d) {
-    var object = d3.select(this),
-        line = d.line + 1;
-    if (d.valid)
-      object
-        .classed("error", false)
-        .html("<td>" + line + "</td>"
-          + "<td>" + d.x + "</td>"
-          + "<td>" + d.y + "</td>"
-          + "<td>" + d.c + "</td>"
-          + "<td>" + (d.t? "" : "<i class=\"icon-ok\"></i>") + "</td>");
-    else
-      object
-        .classed("error", true)
-        .html("<td>" + line + "</td>"
-          + "<td colspan=4>" 
-          + "<span class=\"label label-important\">Синтаксическая ошибка</span>" 
-          + "<pre>" + d.text + "</pre></td>");
-  });
+    var row = table.selectAll("tr")
+      .data(data, function(d, i) { return i; });
 
-  object.exit().remove();
+    row.enter().append("tr");
+    row.exit().remove();
+    row.each(function(d, i) {
+      var tr = d3.select(this);
+      tr.html("");
+      for (var j=0; j<d.length; ++j) {
+        var tag = (i>0 && j>0)? "td" : "th";
+        var cell = tr.append(tag);
+        if (d[j] != '' && (i == 0 || j == 0))
+          cell.append("span")
+            .text(d[j])
+            .attr("class", "label")
+            .style("background-color", visual.color(d[j]));
+        else {
+          if (i == j)
+            cell.append("strong").text(d[j]);
+          else
+            cell.text(d[j]);
+          if (d[j] !== '')
+            cell.style("background-color", heatmap(d[j]));
+        }
+      }
+    });
+  }
 }
 
 function resizeViewport() {
@@ -411,8 +546,23 @@ function resizeViewport() {
 // Achtung: global variables!
 var pracData = [];
 var visual = new Object();
+var last_result = null;
+var metrics = null;
+var confusion_matrix = null;
 var margin = {top: 20, right: 20, bottom: 30, left: 40};
 var viewport = null;
+
+function async(f) {
+  setTimeout(f, 0);
+}
+
+function g_updateView() {
+  async(function() {
+    updateResultView(last_result);
+    updateObjectView(pracData);
+  });
+}
+
 
 // Initialization
 $(window).load(function() {
@@ -421,14 +571,14 @@ $(window).load(function() {
   });
   $("#inputData").change(function() {
     pracData = parseInput($("#inputData").val());
-    redrawVisual(pracData);
-    drawObjTable(pracData);
+    last_result = null;
+    g_updateView();
   });
   $(window).resize(resizeViewport);
 
   $("#layerToggles button").click(function() { 
     $(this).toggleClass("btn-primary"); 
-    setTimeout(function() { redrawVisual(pracData); }, 0);
+    g_updateView();
   });
 
   resizeViewport();

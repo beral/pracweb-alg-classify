@@ -5,7 +5,7 @@ if not flags.IS_CLIENT:
     from . import functions
     from .registry import classifiers, correctors
     from .request_parser import parse_request
-    from .engine import solve, build_map, make_visuals, store_images
+    from .engine import solve, eval_model, build_map, make_visuals, store_images
 
 
 celery = Celery("engine",
@@ -37,16 +37,21 @@ def process_request(request, config):
     except ValueError as e:
         # Validation error
         return False, str(e)
-    report_progress(5, "Building model...")
+    report_progress(5, "Learning")
     model = solve(problem)
-    report_progress(30, "Evaluating model...")
+    if len(problem.data.test):
+        report_progress(15, "Testing")
+        metrics_data, conf_data = eval_model(model, problem)
+    report_progress(30, "Building maps")
     estimate_map = build_map(model, problem)
-    report_progress(70, "Drawing maps...")
+    report_progress(70, "Drawing maps")
     visuals = make_visuals(estimate_map, problem)
-    report_progress(95, "Saving maps...")
+    report_progress(95, "Saving maps")
     image_paths = store_images(visuals, task_id, config['store_path'])
     report_progress(100, "Done")
     return True, {
         'result_id': task_id,
         'maps': image_paths,
+        'metrics': metrics_data,
+        'confusion_matrix': conf_data,
     }

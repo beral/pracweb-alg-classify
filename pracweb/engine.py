@@ -2,19 +2,48 @@ import os.path
 import numpy as np
 import ctypes
 import Image
+import sklearn.metrics as skm
 
 from . import registry
 from . import native
 
 
 def solve(problem):
+    def make_sample(data):
+        indexes = np.random.permutation(data[0].shape[0])
+        indexes = indexes[:len(indexes)/2 + 1]
+        x_new = data[0][indexes, :]
+        y_new = data[1][indexes]
+
+        return x_new, y_new
+
+    def make_balanced_sample(data):
+        x = data[0]
+        y = data[1]
+        x_result = np.empty([0, data[0].shape[1]])
+        y_result = np.empty([0])
+
+        for class_number in np.unique(y):
+            indexes = y == class_number
+            x_class = x[indexes, :]
+            y_class = y[indexes, :]
+            x_class, y_class = make_sample((x_class, y_class))
+            x_result = np.vstack([x_result, x_class])
+            y_result = np.hstack([y_result, y_class])
+
+        return x_result, y_result
+
     n_classes = len(problem.data.class_names)
-    classifiers = [registry.classifiers[c](problem.data.learn[0],
-                                           problem.data.learn[1])
-                   for c in problem.model.classifiers]
+
+    classifiers = []
+    for c in problem.model.classifiers:
+        sample = make_balanced_sample(problem.data.learn)
+        classifiers.append(registry.classifiers[c](sample[0], sample[1]))
+
     corrector = registry.correctors[problem.model.corrector](
-        apply_classifiers(classifiers, problem.data.learn[0], n_classes),
-        problem.data.learn[1])
+            apply_classifiers(classifiers, problem.data.learn[0], n_classes),
+            problem.data.learn[1])
+
     return classifiers, corrector
 
 
@@ -24,6 +53,40 @@ def build_map(model, problem):
     Xgrid = make_grid(problem.grid)
     Kprobs = apply_classifiers(classifiers, Xgrid, n_classes)
     return corrector(Kprobs)
+
+
+def eval_model(model, problem):
+    classifiers, corrector = model
+    class_names = problem.data.class_names
+    n_classes = len(class_names)
+    Fprobs = corrector(
+        apply_classifiers(classifiers, problem.data.test[0], n_classes))
+    y_true = problem.data.test[1]
+    y_pred = np.argmax(Fprobs, 1)
+    labels = range(0, n_classes)
+    metrics = skm.precision_recall_fscore_support(y_true, y_pred, labels=labels)
+    confusion_matrix = skm.confusion_matrix(y_true, y_pred, labels)
+    precision, recall, fscore, support = metrics
+
+    metrics_data = [['',
+                     'Precision',
+                     'Recall',
+                     'F-Score',
+                     'Support']]
+    for i in labels:
+        metrics_data.append([
+            class_names[i],
+            precision[i],
+            recall[i],
+            fscore[i],
+            int(support[i]),  # workaround: make json-serializable
+        ])
+
+    conf_data = [[''] + map(class_names.__getitem__, labels)]
+    for i in labels:
+        conf_data.append([class_names[i]] + confusion_matrix[i, :].tolist())
+
+    return metrics_data, conf_data
 
 
 def make_grid(grid):

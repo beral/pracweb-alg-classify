@@ -2,7 +2,7 @@ from collections import namedtuple
 import numpy as np
 import pracweb.registry as reg
 
-Dataset = namedtuple('Dataset', 'learn control class_names')
+Dataset = namedtuple('Dataset', 'learn test class_names')
 Grid = namedtuple('Grid', 'left bottom right top width height')
 Model = namedtuple('Model', 'classifiers corrector')
 Problem = namedtuple('Problem', 'data model colormap grid')
@@ -10,41 +10,43 @@ Problem = namedtuple('Problem', 'data model colormap grid')
 
 def parse_request(data):
     return Problem(
-        parse_objects(data['objects']),
+        parse_objects(data['data']),
         parse_model(data['model']),
         parse_colors(data['colors']),
         parse_grid(data['grid']))
 
 
-def parse_objects(objects):
-    ensure(isinstance(objects, list))
-    n = len(objects)
-    ensure(n > 0, "object list is empty")
+def parse_objects(data):
+    ensure(isinstance(data, dict))
+    ensure('learn' in data and 'test' in data)
+    data_learn = data['learn']
+    data_test = data['test']
+    ensure(isinstance(data_learn, list))
+    ensure(isinstance(data_test, list))
+    ensure(len(data_learn) > 0, "learning dataset is empty")
 
-    classes = set(obj['c'] for obj in objects)
-    ensure(all(isinstance(classname, basestring) for classname in classes))
+    classes = set(obj['c'] for obj in data_learn)
+    classes.update(obj['c'] for obj in data_test)
+    ensure(all(isinstance(classname, basestring)
+               for classname in classes))
     class_names = dict(enumerate(sorted(classes)))
-    rev_class_names = dict((name, n) for n, name in class_names.iteritems())
+    rev_class_names = dict((name, n)
+                           for n, name
+                           in class_names.iteritems())
 
-    learn = []
-    control = []
-    for obj in objects:
-        desc = (obj['x'], obj['y'], rev_class_names[obj['c']])
-        if not obj['t']:
-            learn.append(desc)
-        else:
-            control.append(desc)
+    def make_np_data(objects):
+        ensure(all('x' in obj and 'y' in obj and 'c' in obj
+                   for obj in objects))
+        return (
+            np.array([(obj['x'], obj['y']) for obj in objects],
+                     dtype=float),
+            np.array([rev_class_names[obj['c']] for obj in objects],
+                     dtype=int),
+        )
 
-    n_learn = (
-        np.array([(x, y) for x, y, _ in learn], dtype=float),
-        np.array([c for _, _, c in learn], dtype=int),
-    )
-    n_control = (
-        np.array([(x, y) for x, y, _ in control], dtype=float),
-        np.array([c for _, _, c in control], dtype=int),
-    )
-
-    return Dataset(n_learn, n_control, class_names)
+    return Dataset(make_np_data(data_learn),
+                   make_np_data(data_test),
+                   class_names)
 
 
 def parse_model(model):
