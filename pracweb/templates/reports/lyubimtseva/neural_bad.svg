@@ -1,0 +1,21 @@
+<svg id="viewport" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="width: 420px; height: 420px; ">
+              <defs>
+                <style type="text/css">
+                  .axis path,
+                  .axis line {
+                  fill: none;
+                  stroke: #000;
+                  shape-rendering: crispEdges;
+                  }
+
+                  .axis text {
+                  font-size: 10px;
+                  }
+
+                  .dot {
+                  stroke: #000;
+                  opacity: 0.7;
+                  }
+                </style>
+              </defs>
+            <g transform="translate(40,20)"><g id="xAxis" class="x axis" transform="translate(0,370)"><g class="tick major" style="opacity: 1; " transform="translate(120,0)"><line y2="6" x2="0"></line><text y="9" x="0" dy=".71em" style="text-anchor: middle; ">0.0</text></g><g class="tick major" style="opacity: 1; " transform="translate(180,0)"><line y2="6" x2="0"></line><text y="9" x="0" dy=".71em" style="text-anchor: middle; ">0.5</text></g><g class="tick major" style="opacity: 1; " transform="translate(240,0)"><line y2="6" x2="0"></line><text y="9" x="0" dy=".71em" style="text-anchor: middle; ">1.0</text></g><g class="tick major" style="opacity: 1; " transform="translate(0,0)"><line y2="6" x2="0"></line><text y="9" dy=".71em" style="text-anchor: middle; " x="0">-1.0</text></g><g class="tick major" style="opacity: 1; " transform="translate(60,0)"><line y2="6" x2="0"></line><text y="9" dy=".71em" style="text-anchor: middle; " x="0">-0.5</text></g><g class="tick major" style="opacity: 1; " transform="translate(300,0)"><line y2="6" x2="0"></line><text y="9" dy=".71em" style="text-anchor: middle; " x="0">1.5</text></g><g class="tick major" style="opacity: 1; " transform="translate(360,0)"><line y2="6" x2="0"></line><text y="9" dy=".71em" style="text-anchor: middle; " x="0">2.0</text></g><path class="domain" d="M0,6V0H360V6"></path><text class="label" x="360" y="-6" style="text-anchor: end; ">X</text></g><g id="yAxis" class="y axis"><g class="tick major" style="opacity: 1; " transform="translate(0,246.6666717529297)"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end; ">0.0</text></g><g class="tick major" style="opacity: 1; " transform="translate(0,185)"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end; ">0.5</text></g><g class="tick major" style="opacity: 1; " transform="translate(0,123.33333587646484)"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end; ">1.0</text></g><g class="tick major" style="opacity: 1; " transform="translate(0,370)"><line x2="-6" y2="0"></line><text x="-9" dy=".32em" style="text-anchor: end; " y="0">-1.0</text></g><g class="tick major" style="opacity: 1; " transform="translate(0,308.3333435058594)"><line x2="-6" y2="0"></line><text x="-9" dy=".32em" style="text-anchor: end; " y="0">-0.5</text></g><g class="tick major" style="opacity: 1; " transform="translate(0,61.66666793823242)"><line x2="-6" y2="0"></line><text x="-9" dy=".32em" style="text-anchor: end; " y="0">1.5</text></g><g class="tick major" style="opacity: 1; " transform="translate(0,0)"><line x2="-6" y2="0"></line><text x="-9" dy=".32em" style="text-anchor: end; " y="0">2.0</text></g><path class="domain" d="M-6,0H0V370H-6"></path><text class="label" transform="rotate(-90)" y="6" dy=".71em" style="text-anchor: end; ">Y</text></g><path class="dot" transform="translate(120,246.6666717529297)" d="M0,-4.653024295510498L5.37284965911771,4.653024295510498 -5.37284965911771,4.653024295510498Z" style="opacity: 0.8; fill: #1f77b4; "></path><path class="dot" transform="translate(240,123.33333587646484)" d="M0,-4.653024295510498L5.37284965911771,4.653024295510498 -5.37284965911771,4.653024295510498Z" style="opacity: 0.8; fill: #1f77b4; "></path><path class="dot" transform="translate(120,123.33333587646484)" d="M0,-4.653024295510498L5.37284965911771,4.653024295510498 -5.37284965911771,4.653024295510498Z" style="opacity: 0.8; fill: #ff7f0e; "></path><path class="dot" transform="translate(240,246.6666717529297)" d="M0,-4.653024295510498L5.37284965911771,4.653024295510498 -5.37284965911771,4.653024295510498Z" style="opacity: 0.8; fill: #ff7f0e; "></path></g></svg>
