@@ -26,9 +26,7 @@ def get_quality(real, predicted):
         result -= np.log(predicted[i, current_class] + 0.000001)
     return result
 
-@corrector("monotone_linear")
 class MonotoneLinear(object):
-    description = {'author': u'А. Фонарев', 'name': u'Монотонная линейная КО'}
     def __init__(self, x_learn, y_learn):
         _, y = convert(y_learn)
         x = x_learn
@@ -63,9 +61,40 @@ class MonotoneLinear(object):
     def describe(self):
         return {'weights': list(self.weights)}
 
-@corrector("monotone_affine")
+@corrector("monotone_linear_potapenko")
+class MonotoneLinearPotapenko(MonotoneLinear):
+    description = {'author': u'А. Потапенко', 'name': u'Монотонная линейная КО'}
+
+@corrector("monotone_linear_zak")
+class MonotoneLinearZak(MonotoneLinear):
+    description = {'author': u'Е. Зак', 'name': u'Монотонная линейная КО'}
+
+@corrector("monotone_linear_malysheva")
+class MonotoneLinearMalysheva(MonotoneLinear):
+    description = {'author': u'Е. Малышева', 'name': u'Монотонная линейная КО'}
+
+@corrector("monotone_linear_kondrashkin")
+class MonotoneLinearKondrashkin(MonotoneLinear):
+    description = {'author': u'Д. Кондрашкин', 'name': u'Монотонная линейная КО'}
+
+@corrector("monotone_linear_gavrikov")
+class MonotoneLinearGavrikov(MonotoneLinear):
+    description = {'author': u'М. Гавриков', 'name': u'Монотонная линейная КО'}
+
+@corrector("monotone_linear_morozovа")
+class MonotoneLinearMorozova(MonotoneLinear):
+    description = {'author': u'Д. Морозова', 'name': u'Монотонная линейная КО'}
+
+@corrector("monotone_linear_shaimardanov")
+class MonotoneLinearShaimardanov(MonotoneLinear):
+    description = {'author': u'И. Шаймарданов', 'name': u'Монотонная линейная КО'}
+
+@corrector("monotone_linear_kurakin")
+class MonotoneLinearKurakin(MonotoneLinear):
+    description = {'author': u'А. Куракин', 'name': u'Монотонная линейная КО'}
+
+
 class MonotoneAffine(object):
-    description = {'author': u'А. Фонарев', 'name': u'Монотонная аффинная КО'}
     def __init__(self, x_learn, y_learn):
         _, y = convert(y_learn)
         x = np.dstack([np.ones(x_learn.shape[0:2]), x_learn])
@@ -101,9 +130,19 @@ class MonotoneAffine(object):
     def describe(self):
         return {'weights': list(self.weights)}
 
-@corrector("special_affine")
+@corrector("monotone_affine_lobacheva")
+class MonotoneAffineLovacheva(MonotoneAffine):
+    description = {'author': u'Е. Лобачева', 'name': u'Монотонная аффинная КО'}
+
+@corrector("monotone_affine_lubimceva")
+class MonotoneAffineLubimceva(MonotoneAffine):
+    description = {'author': u'М. Любимцева', 'name': u'Монотонная аффинная КО'}
+
+@corrector("monotone_affine_berezin")
+class MonotoneAffineBerezin(MonotoneAffine):
+    description = {'author': u'А. Березин', 'name': u'Монотонная аффинная КО'}
+
 class SpecialAffine(object):
-    description = {'author': u'А. Фонарев', 'name': u'Специальная аффинная КО'}
     def __init__(self, x_learn, y_learn):
         _, y = convert(y_learn)
         x = x_learn
@@ -139,9 +178,19 @@ class SpecialAffine(object):
     def describe(self):
         return {'weights': list(self.weights)}
 
-@corrector("special_monotone_affine")
+@corrector("special_affine_malysheva")
+class SpecialAffineMalysheva(SpecialAffine):
+    description = {'author': u'Е. Малышева', 'name': u'Специальная аффинная КО'}
+
+@corrector("special_affine_morozova")
+class SpecialAffineMorozova(SpecialAffine):
+    description = {'author': u'Д. Морозова', 'name': u'Специальная аффинная КО'}
+
+@corrector("special_affine_fonarev")
+class SpecialAffineFonarev(SpecialAffine):
+    description = {'author': u'А. Фонарев', 'name': u'Специальная аффинная КО'}
+
 class SpecialMonotoneAffine(object):
-    description = {'author': u'А. Фонарев', 'name': u'Специальная монотонная аффинная КО'}
     def __init__(self, x_learn, y_learn):
         _, y = convert(y_learn)
         x = x_learn
@@ -176,6 +225,18 @@ class SpecialMonotoneAffine(object):
 
     def describe(self):
         return {'weights': list(self.weights)}
+
+@corrector("special_monotone_affine_gavrikov")
+class SpecialMonotoneAffineGavrikov(SpecialMonotoneAffine):
+    description = {'author': u'М. Гавриков', 'name': u'Специальная монотонная аффинная КО'}
+
+@corrector("special_monotone_affine_romov")
+class SpecialMonotoneAffineRomov(SpecialMonotoneAffine):
+    description = {'author': u'П. Ромов', 'name': u'Специальная монотонная аффинная КО'}
+
+@corrector("special_monotone_affine_fonarev")
+class SpecialMonotoneAffineFonarev(SpecialMonotoneAffine):
+    description = {'author': u'А. Фонарев', 'name': u'Специальная монотонная аффинная КО'}
 
 class UnstableMonotoneLinear(object):
     def __init__(self, x_learn, y_learn):
