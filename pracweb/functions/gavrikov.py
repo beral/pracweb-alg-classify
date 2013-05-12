@@ -22,32 +22,34 @@ except ImportError:
     corrector = classifier
 
 
-NEURALNET_HIDDEN_DIM = 5
+NEURALNET_HIDDEN_DIM = 2
 
 
 def nclass_to_nbinary(y):
     dim = len(set(y))
     flags = np.zeros((y.size, dim))
     for i, c in enumerate(y):
-        flags[i, c] = 1
+        flags[i, c] = 2
     return dim, flags
 
 
 @classifier("neuralnet")
 class NeuralNet(object):
     def __init__(self, x_train, y_train):
+        print "hello from gavrikov"
         dim, y_train2 = nclass_to_nbinary(y_train)
         ds = SupervisedDataSet(2, dim)
-        for (x, y) in zip(x_train, y_train2):
-            ds.addSample(x, y)
-
+        # feint ears
+        for repeatCount in range(0, 2):
+            for (x, y) in zip(x_train, y_train2):
+                ds.addSample(x, y)
         # change 5 to any value change the count of hidden nodes
         self.dim = dim
         self.net = buildNetwork(2, NEURALNET_HIDDEN_DIM, dim,
                                 hiddenclass=TanhLayer)
         trainer = BackpropTrainer(self.net, ds)
-        trainer.train()
-
+        trainer.trainUntilConvergence(validationProportion = 0.1, verbose = True)
+        
     def __call__(self, x):
         result = np.empty((x.shape[0], self.dim))
         net = self.net
