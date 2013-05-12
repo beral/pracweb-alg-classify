@@ -52,11 +52,11 @@ class StandardParzen(Classifier):
         return {'window_size': self.window_size}
 
 @classifier('parzen_standard_kurakin')
-class StandardParzenKurakin(StandartParzen):
+class StandardParzenKurakin(StandardParzen):
     description = {'author': u'А. Куракин', 'name': u'Стандартный парзеновский АО'}
 
 @classifier('parzen_standard_novikov')
-class StandardParzenNovikov(StandartParzen):
+class StandardParzenNovikov(StandardParzen):
     description = {'author': u'М. Новиков', 'name': u'Стандартный парзеновский АО'}
 
 if __name__ == '__main__':

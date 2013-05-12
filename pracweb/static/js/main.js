@@ -624,7 +624,7 @@ function updateStaticModelState() {
   function updateDialogView(selector, dest, table) {
     $(selector).empty();
     d3.select(selector).selectAll("li")
-      .data(Object.keys(table), function(d) { return d; })
+      .data(Object.keys(table).sort(), function(d) { return d; })
       .enter().append("li")
       .append("a")
           .html(function(d) { return opTitle(table, d); })
