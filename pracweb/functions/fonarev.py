@@ -3,6 +3,8 @@
 from sklearn.neighbors import KNeighborsClassifier
 
 import numpy as np
+import sys
+from copy import deepcopy
 
 from .common import Classifier
 try:
@@ -11,10 +13,9 @@ except ImportError:
     classifier = lambda x: lambda y: y
     corrector = classifier
 
-
 @classifier('parzen_finite')
 class FiniteParzen(Classifier):
-    def __init__(self, x_train, y_train, window_size=10):
+    def __init__(self, x_train, y_train, window_size=40):
         weights = lambda dists: np.float32(dists <= window_size) + 0.01
         Classifier.__init__(
             self,
@@ -22,13 +23,21 @@ class FiniteParzen(Classifier):
             x_train,
             y_train)
 
-
 @classifier('parzen_standard')
 class StandardParzen(Classifier):
-    def __init__(self, x_train, y_train, window_size=10):
+    def __init__(self, x_train, y_train, window_size=20):
         weights = lambda dists: np.exp(-dists ** 2 / window_size)
         Classifier.__init__(
             self,
             KNeighborsClassifier(n_neighbors=10000, weights=weights, algorithm='brute'),
             x_train,
             y_train)
+
+if __name__ == '__main__':
+    x_learn = np.round(np.random.random([3,5,4]) * 5)
+    y_learn = np.round(np.random.random([3,4]) * 5)
+    x_test = np.round(np.random.random([3,5,4]) * 5)
+
+    c = MonotoneLinear(x_learn, y_learn)
+    print c.weights
+    print c(x_test)
