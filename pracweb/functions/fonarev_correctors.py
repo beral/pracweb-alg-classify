@@ -53,7 +53,7 @@ class MonotoneLinear(object):
         result[result < 0] = 0
         return result
 
-    def describe():
+    def describe(self):
         return {'weights': list(self.weights)}
 
 @corrector("monotone_affine")
@@ -91,7 +91,7 @@ class MonotoneAffine(object):
         result[result < 0] = 0
         return result
 
-    def describe():
+    def describe(self):
         return {'weights': list(self.weights)}
 
 @corrector("special_affine")
@@ -129,7 +129,7 @@ class SpecialAffine(object):
         result[result < 0] = 0
         return result
 
-    def describe():
+    def describe(self):
         return {'weights': list(self.weights)}
 
 @corrector("special_monotone_affine")
@@ -167,7 +167,7 @@ class SpecialMonotoneAffine(object):
         result[result < 0] = 0
         return result
 
-    def describe():
+    def describe(self):
         return {'weights': list(self.weights)}
 
 class UnstableMonotoneLinear(object):

@@ -26,7 +26,7 @@ class FiniteParzen(Classifier):
             x_train,
             y_train)
 
-    def describe():
+    def describe(self):
         return {'window_size': self.window_size}
 
 @classifier('parzen_standard')
@@ -42,7 +42,7 @@ class StandardParzen(Classifier):
             x_train,
             y_train)
 
-    def describe():
+    def describe(self):
         return {'window_size': self.window_size}
 
 if __name__ == '__main__':
