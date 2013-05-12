@@ -11,15 +11,6 @@ except ImportError:
     classifier = lambda x: lambda y: y
     corrector = classifier
 
-def nclass_to_nbinary(y):
-    print y
-    dim = len(set(y))
-    flags = np.zeros((y.size, dim))
-    for i, c in enumerate(y):
-        flags[i, c - 1] = 1
-    return dim, flags
-
-
 def convert(y):
     dim = len(set(y))
     flags = np.zeros((0, dim))
@@ -28,37 +19,23 @@ def convert(y):
         flags[-1, c] = 1
     return dim, flags
 
-
 def get_quality(real, predicted):
     result = 0
     for i in range(real.shape[0]):
         current_class = int(np.where(real[i, :] != 0)[0])
         result -= np.log(predicted[i, current_class] + 0.000001)
-        #result += (1 - predicted[i, current_class]) ** 2
-
-        #print "RP"
-        #print real[i, :]
-        #print predicted[i, :]
-        #if np.argmax(predicted[i, :]) != current_class:
-
-        #    result += 1
-
-        1+1
-
     return result
 
-@corrector("test_monotone_linear")
-class TestMonotoneLinear(object):
-    description = {'author': u'А. Фонарев', 'name': u'ТЕСТОВАЯ Монотонная линейная КО'}
+@corrector("monotone_linear")
+class MonotoneLinear(object):
+    description = {'author': u'А. Фонарев', 'name': u'Монотонная линейная КО'}
     def __init__(self, x_learn, y_learn):
-        #_, y = nclass_to_nbinary(y_learn)
         _, y = convert(y_learn)
         x = x_learn
         x, y = x - 0.5, y - 0.5
         self.weights = np.array([])
 
         for oper_number in range(1, x.shape[2] + 1):
-            print "--------------------------------------"
             func_min = 100000
             func_argmin = 0
 
@@ -67,47 +44,7 @@ class TestMonotoneLinear(object):
                 predicted = np.dot(x[:, :, :oper_number], w)
                 predicted[predicted > 0.5] = 0.5
                 predicted[predicted < -0.5] = -0.5
-                #func_value = np.sum((predicted - y) ** 2)
                 func_value = get_quality(y + 0.5, predicted + 0.5)
-
-                print "weight", new_weight, func_value
-                if func_value < func_min:
-                    func_min, func_argmin = func_value, new_weight
-
-            self.weights = np.hstack([self.weights, func_argmin])
-
-    def __call__(self, x_val):
-        print >> sys.stderr, "x size", x_val.shape
-        print >> sys.stderr, "weights size", self.weights.shape
-        print >> sys.stderr, "weights: ", self.weights
-
-        result = np.dot(x_val - 0.5, self.weights) + 0.5
-        result[result > 1] = 1
-        result[result < 0] = 0
-        return result
-
-    def describe(self):
-        return {'weights': list(self.weights)}
-
-@corrector("monotone_linear")
-class MonotoneLinear(object):
-    description = {'author': u'А. Фонарев', 'name': u'Монотонная линейная КО'}
-    def __init__(self, x_learn, y_learn):
-        _, y = nclass_to_nbinary(y_learn)
-        x = x_learn
-        x, y = x - 0.5, y - 0.5
-        self.weights = np.array([])
-
-        for oper_number in range(1, x.shape[2] + 1):
-            func_min = 100000
-            func_argmin = 0
-
-            for new_weight in np.arange(0, 2, 0.01):
-                w = np.hstack([self.weights, new_weight])
-                predicted = np.dot(x[:, :, :oper_number], w)
-                predicted[predicted > 0.5] = 0.5
-                predicted[predicted < -0.5] = -0.5
-                func_value = np.sum((predicted - y) ** 2)
                 if func_value < func_min:
                     func_min, func_argmin = func_value, new_weight
 
@@ -130,7 +67,7 @@ class MonotoneLinear(object):
 class MonotoneAffine(object):
     description = {'author': u'А. Фонарев', 'name': u'Монотонная аффинная КО'}
     def __init__(self, x_learn, y_learn):
-        _, y = nclass_to_nbinary(y_learn)
+        _, y = convert(y_learn)
         x = np.dstack([np.ones(x_learn.shape[0:2]), x_learn])
         x, y = x - 0.5, y - 0.5
         self.weights = np.array([])
@@ -144,7 +81,7 @@ class MonotoneAffine(object):
                 predicted = np.dot(x[:, :, :oper_number], w)
                 predicted[predicted > 0.5] = 0.5
                 predicted[predicted < -0.5] = -0.5
-                func_value = np.sum((predicted - y) ** 2)
+                func_value = get_quality(y + 0.5, predicted + 0.5)
                 if func_value < func_min:
                     func_min, func_argmin = func_value, new_weight
 
@@ -168,7 +105,7 @@ class MonotoneAffine(object):
 class SpecialAffine(object):
     description = {'author': u'А. Фонарев', 'name': u'Специальная аффинная КО'}
     def __init__(self, x_learn, y_learn):
-        _, y = nclass_to_nbinary(y_learn)
+        _, y = convert(y_learn)
         x = x_learn
         x, y = x - 0.5, y - 0.5
         self.weights = np.array([1])
@@ -182,7 +119,7 @@ class SpecialAffine(object):
                 predicted = np.dot(x[:, :, :oper_number], w)
                 predicted[predicted > 0.5] = 0.5
                 predicted[predicted < -0.5] = -0.5
-                func_value = np.sum((predicted - y) ** 2)
+                func_value = get_quality(y + 0.5, predicted + 0.5)
 
                 if func_value < func_min:
                     func_min, func_argmin = func_value, new_weight
@@ -206,7 +143,7 @@ class SpecialAffine(object):
 class SpecialMonotoneAffine(object):
     description = {'author': u'А. Фонарев', 'name': u'Специальная монотонная аффинная КО'}
     def __init__(self, x_learn, y_learn):
-        _, y = nclass_to_nbinary(y_learn)
+        _, y = convert(y_learn)
         x = x_learn
         x, y = x - 0.5, y - 0.5
         self.weights = np.array([1])
@@ -220,7 +157,7 @@ class SpecialMonotoneAffine(object):
                 predicted = np.dot(x[:, :, :oper_number], w)
                 predicted[predicted > 0.5] = 0.5
                 predicted[predicted < -0.5] = -0.5
-                func_value = np.sum((predicted - y) ** 2)
+                func_value = get_quality(y + 0.5, predicted + 0.5)
 
                 if func_value < func_min:
                     func_min, func_argmin = func_value, new_weight
