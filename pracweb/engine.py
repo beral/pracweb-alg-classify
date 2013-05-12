@@ -9,13 +9,41 @@ from . import native
 
 
 def solve(problem):
+    def make_sample(data):
+        indexes = np.random.permutation(data[0].shape[0])
+        indexes = indexes[:len(indexes)/2 + 1]
+        x_new = data[0][indexes, :]
+        y_new = data[1][indexes]
+
+        return x_new, y_new
+
+    def make_balanced_sample(data):
+        x = data[0]
+        y = data[1]
+        x_result = np.empty([0, data[0].shape[1]])
+        y_result = np.empty([0])
+
+        for class_number in np.unique(y):
+            indexes = y == class_number
+            x_class = x[indexes, :]
+            y_class = y[indexes, :]
+            x_class, y_class = make_sample((x_class, y_class))
+            x_result = np.vstack([x_result, x_class])
+            y_result = np.hstack([y_result, y_class])
+
+        return x_result, y_result
+
     n_classes = len(problem.data.class_names)
-    classifiers = [registry.classifiers[c](problem.data.learn[0],
-                                           problem.data.learn[1])
-                   for c in problem.model.classifiers]
+
+    classifiers = []
+    for c in problem.model.classifiers:
+        sample = make_balanced_sample(problem.data.learn)
+        classifiers.append(registry.classifiers[c](sample[0], sample[1]))
+
     corrector = registry.correctors[problem.model.corrector](
-        apply_classifiers(classifiers, problem.data.learn[0], n_classes),
-        problem.data.learn[1])
+            apply_classifiers(classifiers, problem.data.learn[0], n_classes),
+            problem.data.learn[1])
+
     return classifiers, corrector
 
 
