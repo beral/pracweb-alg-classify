@@ -17,7 +17,7 @@ except ImportError:
 class FiniteParzen(Classifier):
     description = {'author': u'А. Фонарев', 'name': u'Парзеновский АО с финитным окном'}
 
-    def __init__(self, x_train, y_train, window_size=40):
+    def __init__(self, x_train, y_train, window_size=20):
         self.window_size = window_size
         weights = lambda dists: np.float32(dists <= window_size) + 0.01
         Classifier.__init__(

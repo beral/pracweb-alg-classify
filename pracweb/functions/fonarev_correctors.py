@@ -61,7 +61,7 @@ class MonotoneAffine(object):
     description = {'author': u'А. Фонарев', 'name': u'Монотонная аффинная КО'}
     def __init__(self, x_learn, y_learn):
         _, y = nclass_to_nbinary(y_learn)
-        x = np.dstack([np.ones(x_learn.shape[0:1]), x_learn])
+        x = np.dstack([np.ones(x_learn.shape[0:2]), x_learn])
         x, y = x - 0.5, y - 0.5
         self.weights = np.array([])
 
@@ -85,7 +85,7 @@ class MonotoneAffine(object):
         print >> sys.stderr, "weights size", self.weights.shape
         print >> sys.stderr, "weights: ", self.weights
 
-        x = np.dstack([np.ones(x_val.shape[0:1]), x_val])
+        x = np.dstack([np.ones(x_val.shape[0:2]), x_val])
         result = np.dot(x - 0.5, self.weights) + 0.5
         result[result > 1] = 1
         result[result < 0] = 0
