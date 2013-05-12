@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import numpy as np
 from pybrain.optimization import CMAES
 import sys
@@ -34,7 +36,7 @@ class MonotoneLinear(object):
                 w = np.hstack([self.weights, new_weight])
                 predicted = np.dot(x[:, :, :oper_number], w)
                 predicted[predicted > 0.5] = 0.5
-                predicted[predcited < -0.5] = -0.5
+                predicted[predicted < -0.5] = -0.5
                 func_value = np.sum((predicted - y) ** 2)
                 if func_value < func_min:
                     func_min, func_argmin = func_value, new_weight
