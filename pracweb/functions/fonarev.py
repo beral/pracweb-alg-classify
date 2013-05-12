@@ -13,10 +13,7 @@ except ImportError:
     classifier = lambda x: lambda y: y
     corrector = classifier
 
-@classifier('parzen_finite')
 class FiniteParzen(Classifier):
-    description = {'author': u'А. Фонарев', 'name': u'Парзеновский АО с финитным окном'}
-
     def __init__(self, x_train, y_train, window_size=20):
         self.window_size = window_size
         weights = lambda dists: np.float32(dists <= window_size) + 0.01
@@ -29,10 +26,19 @@ class FiniteParzen(Classifier):
     def describe(self):
         return {'window_size': self.window_size}
 
-@classifier('parzen_standard')
-class StandardParzen(Classifier):
-    description = {'author': u'А. Фонарев', 'name': u'Стандартный парзеновский АО'}
+@classifier('parzen_finite_ismagilov')
+class FiniteParzenIsmagilov(FiniteParzen):
+    description = {'author': u'Т. Исмагилов', 'name': u'Парзеновский АО с финитным окном'}
 
+@classifier('parzen_finite_zak')
+class FiniteParzenZak(FiniteParzen):
+    description = {'author': u'Е. Зак', 'name': u'Парзеновский АО с финитным окном'}
+
+@classifier('parzen_finite_morozova')
+class FiniteParzenMorozova(FiniteParzen):
+    description = {'author': u'Д. Морозова', 'name': u'Парзеновский АО с финитным окном'}
+
+class StandardParzen(Classifier):
     def __init__(self, x_train, y_train, window_size=20):
         self.window_size = window_size
         weights = lambda dists: np.exp(-dists ** 2 / window_size)
@@ -44,6 +50,14 @@ class StandardParzen(Classifier):
 
     def describe(self):
         return {'window_size': self.window_size}
+
+@classifier('parzen_standard_kurakin')
+class StandardParzenKurakin(StandartParzen):
+    description = {'author': u'А. Куракин', 'name': u'Стандартный парзеновский АО'}
+
+@classifier('parzen_standard_novikov')
+class StandardParzenNovikov(StandartParzen):
+    description = {'author': u'М. Новиков', 'name': u'Стандартный парзеновский АО'}
 
 if __name__ == '__main__':
     x_learn = np.round(np.random.random([3,5,4]) * 5)
