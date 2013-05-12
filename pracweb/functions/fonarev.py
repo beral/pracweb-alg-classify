@@ -15,7 +15,10 @@ except ImportError:
 
 @classifier('parzen_finite')
 class FiniteParzen(Classifier):
+    description = {'author': u'А. Фонарев', 'name': u'Парзеновский АО с финитным окном'}
+
     def __init__(self, x_train, y_train, window_size=40):
+        self.window_size = window_size
         weights = lambda dists: np.float32(dists <= window_size) + 0.01
         Classifier.__init__(
             self,
@@ -23,15 +26,24 @@ class FiniteParzen(Classifier):
             x_train,
             y_train)
 
+    def describe():
+        return {'window_size': self.window_size}
+
 @classifier('parzen_standard')
 class StandardParzen(Classifier):
+    description = {'author': u'А. Фонарев', 'name': u'Стандартный парзеновский АО'}
+
     def __init__(self, x_train, y_train, window_size=20):
+        self.window_size = window_size
         weights = lambda dists: np.exp(-dists ** 2 / window_size)
         Classifier.__init__(
             self,
             KNeighborsClassifier(n_neighbors=10000, weights=weights, algorithm='brute'),
             x_train,
             y_train)
+
+    def describe():
+        return {'window_size': self.window_size}
 
 if __name__ == '__main__':
     x_learn = np.round(np.random.random([3,5,4]) * 5)
