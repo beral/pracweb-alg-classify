@@ -1,33 +1,8 @@
-﻿<html>
-<head>
-	<meta charset="UTF-8">
-	<title>Кондрашкин Дмитрий. Настройка суперпозиции алгебраических операторов с помощью корректирующих операций</title>
-	<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+﻿{% extends "reports_base.html" %}
+{% block author %}Дмитрий Кондрашкин{% endblock %}
+{% block topic %}Настройка суперпозиции алгебраических операторов с помощью корректирующих операций{% endblock %}
 
-	<script src='tableofcontents.js'></script>
-	<link rel='stylesheet' href='tableofcontents.css' />
-	<script>
-	$(document).ready(function()
-	{
-		$('#toc').tableofcontents(); //'#toc' - toc is id of div where to render 
-	});
-	</script>
-
-	<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-	<script type="text/x-mathjax-config">
-	MathJax.Hub.Config({
-		tex2jax: {
-			inlineMath: [ ['$','$'], ["\\(","\\)"] ],
-			processEscapes: true
-		}
-	});
-	</script>
-</head>
-
-
-   
-   <body>
-   	<div id='toc'></div>
+{% block report %}
     <h1>Введение</h1>
 
 	В данной работе проводятся исследование применения алгебраического подхода к решению задачи многоклассовой классификации. Алгебраический подход заключается в приминении операции, которая позволяет объединить результаты работы нескольких алгоритмов. Данный подход позволяет на основе "слабых" алгоритмов получать композиции хорошего качества.
@@ -309,7 +284,7 @@ $\omega(i,S)$ &mdash; весовая функция,
 
 <h2>Параметры модели </h2>
 
-<table border="1">
+<table>
 <caption></caption>
 <tr>
 <th>Название</th>
@@ -456,7 +431,7 @@ $P(r)$ представляет собой дискретное распреде
 </ul>
 
 <h2>Параметры модели</h2>
-<table border="1">
+<table>
 <caption></caption>
 <tr>
 <th>Название</th>
@@ -606,7 +581,7 @@ $$F(B_1, \dots, B_P) = a_1 B_1 + \dots + a_p B_p, $$
 
 <center>
 
-<table border="1">
+<table>
 <caption></caption>
 <tr>
 <th>Название параметра</th>
@@ -689,7 +664,7 @@ $\Gamma_r$ доминирует компонента $z_r$, то перебор 
 
 <center>
 
-<table border="1">
+<table>
 <caption></caption>
 <tr>
 <th>Название параметра</th>
@@ -720,12 +695,6 @@ $z_1,\dots, z_{p-1}$
 </center>
 <br>
 для которых достигается минимум функционала корректирующей операции на обучающей выборке.
+{% endblock report %}
 
-
-
-
-
-
-   </body>
-   
- </html>
+<!-- vim: set ft=htmldjango si sw=2 : -->

@@ -1,32 +1,8 @@
-<!DOCTYPE html>
-<html>
+{% extends "reports_base.html" %}
+{% block author %}Александр Куракин{% endblock %}
+{% block topic %}Настройка суперпозиции корректирующих операторов{% endblock %}
 
-<head>
-	<meta charset="UTF-8">
-	<title>Куракин Александр. Настройка суперпозиции корректирующих операторов</title>
-	<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
-
-	<script src='tableofcontents.js'></script>
-	<link rel='stylesheet' href='tableofcontents.css' />
-	<script>
-	$(document).ready(function()
-	{
-		$('#toc').tableofcontents(); //'#toc' - toc is id of div where to render 
-	});
-	</script>
-
-	<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-	<script type="text/x-mathjax-config">
-	MathJax.Hub.Config({
-		tex2jax: {
-			inlineMath: [ ['$','$'], ["\\(","\\)"] ],
-			processEscapes: true
-		}
-	});
-	</script>
-</head>
-
-<body>
+{% block report %}
 	<div id='toc'></div>
 
 	<h1>Введение</h1>
@@ -578,8 +554,6 @@
 		Q(\alpha_1, \cdots, \alpha_l, \tilde{S}) = \sum_{j = 1}^q {\sum_{i = 1}^l { \mathbb{I}\left[\sum_{k = 1}^p B_i^k (S_j) > \alpha_i\right] - c_j(i) } } \longrightarrow \underset{\alpha_i}{\min}
 	\end{equation} 
 	Получили сложную задачу оптимизации. Будем искать ее решение методом Монте-Карло.</p>
-	
+{% endblock report %}
 
-</body>
-
-</html>
+<!-- vim: set ft=htmldjango si sw=2 : -->

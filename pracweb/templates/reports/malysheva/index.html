@@ -1,33 +1,8 @@
-﻿<html>
-<head>
-	<meta charset="UTF-8">
-	<title>Малышева Екатерина. Настройка суперпозиции алгебраических операторов с помощью корректирующих операций</title>
-	<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+﻿{% extends "reports_base.html" %}
+{% block author %}Екатерина Малышева{% endblock %}
+{% block topic %}Настройка суперпозиции алгебраических операторов с помощью корректирующих операций{% endblock %}
 
-	<script src='tableofcontents.js'></script>
-	<link rel='stylesheet' href='tableofcontents.css' />
-	<script>
-	$(document).ready(function()
-	{
-		$('#toc').tableofcontents(); //'#toc' - toc is id of div where to render 
-	});
-	</script>
-
-	<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-	<script type="text/x-mathjax-config">
-	MathJax.Hub.Config({
-		tex2jax: {
-			inlineMath: [ ['$','$'], ["\\(","\\)"] ],
-			processEscapes: true
-		}
-	});
-	</script>
-</head>
-
-
-   
-   <body>
-   	<div id='toc'></div>
+{% block report %}
     <h1>Введение</h1>
 	
 	В данном работе исследуется идея алгебраического подхода к задаче распознования на примере задачи
@@ -646,11 +621,7 @@ $$
 <h3>Метод оптимизации для численно оптимизируемых параметров</h3>
 Был реализован метод покоординатной оптимизации. Метод достаточно прост в реализации и для любой задачи применим, а найденный оператор даёт минимум функционала.
 
-<img border="0" src="one.png" alt="picture one">
+<!-- <img border="0" src="one.png" alt="picture one"> -->
+{% endblock report %}
 
-
-
-
-   </body>
-   
- </html>
+<!-- vim: set ft=htmldjango si sw=2 : -->

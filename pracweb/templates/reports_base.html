@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}{{ self.topic() }}{% endblock %}
+
+{% block topic %}{% endblock %}
+{% block author %}{% endblock %}
+
+{% block header %}
+<div class="page-header">
+  <h1>
+    <small>
+      <a href="{{ url_for('index') }}">&larr;&nbsp;Классификатор</a>
+    </small>
+    <span class="pull-right">
+      <a href="{{ url_for('reports_index') }}">Отчеты</a>
+    </span>
+  </h1>
+</div>
+<div class="row-fluid">
+  <h1>
+    <small class="pull-right">
+      {{ self.author() }}
+    </small>
+    {{ self.topic() }}
+  </h1>
+</div>
+{% endblock %}
+
+{% block body %}
+<div id="report" class="row-fluid">
+  <div id="toc"></div>
+  {% block report %}{% endblock %}
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+  .toc1 {
+    padding:2px 10px;
+  }
+  .toc2 {
+    padding:2px 20px;
+  }
+  .toc3 {
+    padding:2px 30px;
+  }
+  .toc4 {
+    padding:2px 40px;
+  }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript" src="{{ url_for('static', filename='js/report.js') }}"></script>
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+{% endblock %}
+
+<!-- vim: set ft=htmldjango si sw=2 : -->

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}{{ self.topic() }}{% endblock %}
+
+{% block topic %}{% endblock %}
+{% block author %}{% endblock %}
+
+{% block header %}
+<div class="page-header">
+  <h1>
+    <small>
+      <a href="{{ url_for('index') }}">&larr;&nbsp;Классификатор</a>
+    </small>
+    <span class="pull-right">
+      Отчеты
+    </span>
+  </h1>
+</div>
+{% endblock %}
+
+{% block body %}
+<h2>Список отчетов</h2>
+<ul>
+  <li><a href="kurakin">Куракин</a>
+  <li><a href="kondrashkin">Кондрашкин</a>
+  <li><a href="malysheva">Малышева</a>
+  <li><a href="lyubimtseva">Любимцева</a>
+  <li><a href="ismagilov">Исмагилов</a>
+</ul>
+{% endblock %}
+
+{% block styles %}
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}
+
+<!-- vim: set ft=htmldjango si sw=2 : -->
+
