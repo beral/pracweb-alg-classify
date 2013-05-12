@@ -2,6 +2,7 @@
 
 import traceback
 import pprint
+import os.path
 
 import flask
 from flask import Flask, request
@@ -19,6 +20,27 @@ app = Flask('pracweb')
 @app.route('/')
 def index():
     return flask.render_template('index.html')
+
+
+@app.route('/reports/')
+def reports_index():
+    return flask.render_template('reports.html')
+
+
+@app.route('/reports/<report_name>/')
+@app.route('/reports/<report_name>/<filename>')
+def report(report_name, filename='index.html'):
+    templates = os.path.join(app.root_path, app.template_folder)
+    rel_path = reduce(flask.safe_join, ('reports', report_name, filename))
+    full_path = os.path.join(templates, rel_path)
+    if not os.path.exists(full_path):
+        flask.abort(404)
+
+    if filename.endswith('.html'):
+        return flask.render_template(rel_path)
+    else:
+        return flask.send_file(full_path)
+
 
 
 @app.route('/api/operations')
