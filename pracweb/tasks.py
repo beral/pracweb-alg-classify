@@ -49,9 +49,12 @@ def process_request(request, config):
         return False, str(e)
     report_progress(5, "Learning")
     model = solve(problem)
-    if len(problem.data.test):
+    if len(problem.data.test[0]):
         report_progress(15, "Testing")
         metrics_data, conf_data = eval_model(model, problem)
+    else:
+        metrics_data = None
+        conf_data = None
     report_progress(30, "Building maps")
     estimate_map = build_map(model, problem)
     report_progress(70, "Drawing maps")
