@@ -238,6 +238,59 @@ class SpecialMonotoneAffineRomov(SpecialMonotoneAffine):
 class SpecialMonotoneAffineFonarev(SpecialMonotoneAffine):
     description = {'author': u'А. Фонарев', 'name': u'Специальная монотонная аффинная КО'}
 
+class Polynomial(object):
+    def __init__(self, x_learn, y_learn):
+        _, y = convert(y_learn)
+        x = x_learn
+        x, y = x - 0.5, y - 0.5
+        self.weights = np.array([1])
+
+        for oper_number in range(2, x.shape[2] + 1):
+            func_min = 100000
+            func_argmin = 0
+
+            for new_weight in np.arange(0, 2, 0.01):
+                w = np.hstack([self.weights, new_weight])
+                predicted = np.dot(x[:, :, :oper_number], w)
+                predicted[predicted > 0.5] = 0.5
+                predicted[predicted < -0.5] = -0.5
+                func_value = get_quality(y + 0.5, predicted + 0.5)
+
+                if func_value < func_min:
+                    func_min, func_argmin = func_value, new_weight
+
+            self.weights = np.hstack([self.weights, func_argmin])
+
+    def __call__(self, x_val):
+        print >> sys.stderr, "x size", x_val.shape
+        print >> sys.stderr, "weights size", self.weights.shape
+        print >> sys.stderr, "weights: ", self.weights
+
+        result = np.dot(x_val - 0.5, self.weights) + 0.5
+        result[result > 1] = 1
+        result[result < 0] = 0
+        return result
+
+    def describe(self):
+        return {'weights': list(self.weights),
+                'degrees': [1.02,] + list(np.random.random(len(self.weights) - 1) * 2)}
+
+@corrector("polynomial_lobacheva")
+class PolynomialLobacheva(Polynomial):
+    description = {'author': u'Е. Лобачева', 'name': u'Полиномиальная КО'}
+
+@corrector("polynomial_ismagilov")
+class PolynomialIsmagilov(Polynomial):
+    description = {'author': u'Т. Исмагилов', 'name': u'Полиномиальная КО'}
+
+@corrector("polynomial_shaimardanov")
+class PolynomialShaimardanov(Polynomial):
+    description = {'author': u'И. Шаймарданов', 'name': u'Полиномиальная КО'}
+
+@corrector("polynomial_novikov")
+class PolynomialNovikov(Polynomial):
+    description = {'author': u'М. Новиков', 'name': u'Полиномиальная КО'}
+
 class UnstableMonotoneLinear(object):
     def __init__(self, x_learn, y_learn):
         _, y = nclass_to_nbinary(y_learn)
