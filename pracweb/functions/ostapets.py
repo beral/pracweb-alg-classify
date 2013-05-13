@@ -9,11 +9,8 @@ except ImportError:
     # Dummies
     classifier = lambda x: lambda y: y
     corrector = classifier
-    
 
-@corrector("independent_optimum")
 class IndependentOptimum(object):
-    description = {'author': u'А. Остапец', 'name': u'Выбирающая независимый оптимум КО'}
     def __init__(self, x_learn, y_learn):
         x = x_learn
         votes = np.zeros(len(x))
@@ -32,12 +29,28 @@ class IndependentOptimum(object):
 
     def describe(self):
         return {'algo number': self.oper_number}
+    
+@corrector("independent_optimum_ostapets")
+class IndependentOptimumOstapets(IndependentOptimum):
+    description = {'author': u'А. Остапец', 'name': u'Выбирающая независимый оптимум КО'}
+
+@corrector("independent_optimum_nizhibitsky")
+class IndependentOptimumNizhibitsky(IndependentOptimum):
+    description = {'author': u'Е. Нижибицкий', 'name': u'Выбирающая независимый оптимум КО'}
+
+@corrector("independent_optimum_berezin")
+class IndependentOptimumBerezin(IndependentOptimum):
+    description = {'author': u'А. Березин', 'name': u'Выбирающая независимый оптимум КО'}
+
+@corrector("independent_optimum_ogneva")
+class IndependentOptimumOgneva(IndependentOptimum):
+    description = {'author': u'Д. Огнева', 'name': u'Выбирающая независимый оптимум КО'}
 
 if __name__ == '__main__':
     x_learn = np.round(np.random.random([5, 4, 3]) * 5)
     y_learn = np.array([1,2,3,4,1])
     x_test = np.round(np.random.random([15, 4, 3]) * 5)
 
-    c = IndependentOptimum(x_learn, y_learn)
+    c = IndependentOptimumOstapets(x_learn, y_learn)
     print c.oper_number
     print c(x_test)
