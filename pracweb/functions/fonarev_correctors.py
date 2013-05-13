@@ -272,8 +272,8 @@ class Polynomial(object):
         return result
 
     def describe(self):
-        return {'weights': list(self.weights),
-                'degrees': [1.02,] + list(np.random.random(len(self.weights) - 1) * 2)}
+        return {'weights': map(float, self.weights),
+                'degrees': [1.02,] + map(float, np.random.random(len(self.weights) - 1) * 2)}
 
 @corrector("polynomial_lobacheva")
 class PolynomialLobacheva(Polynomial):
