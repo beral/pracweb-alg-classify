@@ -97,7 +97,7 @@ class MonotoneLinearKurakin(MonotoneLinear):
 class MonotoneAffine(object):
     def __init__(self, x_learn, y_learn):
         _, y = convert(y_learn)
-        x = np.dstack([np.ones(x_learn.shape[0:2]), x_learn])
+        x = np.dstack([np.random.random(x_learn.shape[0:2]), x_learn])
         x, y = x - 0.5, y - 0.5
         self.weights = np.array([])
 
