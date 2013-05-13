@@ -13,3 +13,10 @@ class Classifier(object):
 
     def __call__(self, x_val):
         return self.clf.predict_proba(x_val)
+
+    def describe(self):
+        return dict(
+            (k, v)
+            for k, v in self.clf.get_params().iteritems()
+            if not callable(v))
+              

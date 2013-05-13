@@ -1,4 +1,4 @@
-from . import test
+#from . import test
 from . import kondrashkin
 from . import fonarev
 from . import fonarev_correctors

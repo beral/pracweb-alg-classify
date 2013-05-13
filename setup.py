@@ -16,6 +16,7 @@ setup(
     zip_safe=False,
     install_requires=[
         'PIL',
+        'yaml',
         'Flask>=0.8',
         'scikit-learn>=0.13',
         'pybrain>=0.3',

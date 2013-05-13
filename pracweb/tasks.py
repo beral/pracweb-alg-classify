@@ -5,7 +5,7 @@ if not flags.IS_CLIENT:
     from . import functions
     from .registry import classifiers, correctors
     from .request_parser import parse_request
-    from .engine import solve, eval_model, build_map, make_visuals, store_images
+    from .engine import solve, describe_model, eval_model, build_map, make_visuals, store_images
 
 
 celery = Celery("engine",
@@ -49,6 +49,7 @@ def process_request(request, config):
         return False, str(e)
     report_progress(5, "Learning")
     model = solve(problem)
+    description = describe_model(model)
     if len(problem.data.test[0]):
         report_progress(15, "Testing")
         metrics_data, conf_data = eval_model(model, problem)
@@ -67,4 +68,5 @@ def process_request(request, config):
         'maps': image_paths,
         'metrics': metrics_data,
         'confusion_matrix': conf_data,
+        'text': description,
     }

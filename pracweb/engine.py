@@ -1,4 +1,5 @@
 import os.path
+import yaml
 import numpy as np
 import ctypes
 import Image
@@ -46,6 +47,22 @@ def solve(problem):
         problem.data.learn[1])
 
     return classifiers, corrector
+
+
+def describe_model(model):
+    def describe(x):
+        result = dict(meta=None, params=None)
+        if hasattr(x, 'description'):
+            result['meta'] = x.description
+        if hasattr(x, 'describe'):
+            result['params'] = x.describe()
+        return result
+
+    classifiers, corrector = model
+    model_params = dict(
+        classifiers=[describe(x) for x in classifiers],
+        corrector=describe(corrector))
+    return yaml.safe_dump(model_params, allow_unicode=True, default_flow_style=False)
 
 
 def build_map(model, problem):

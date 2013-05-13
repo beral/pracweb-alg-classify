@@ -1,6 +1,7 @@
 # vim: et sw=4
 # encoding: utf-8
 
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neighbors import NearestCentroid
 from sklearn.metrics.pairwise import pairwise_distances
 
@@ -38,3 +39,17 @@ class LogarithmicBalls(Classifier):
 
     def __init__(self, x_train, y_train):
         Classifier.__init__(self, ProbaCentroid(), x_train, y_train)
+
+
+# Parzen in fact
+@classifier('avo')
+class AVO(Classifier):
+    description = {
+            'name': u'Алгоритм вычисления оценок',
+        'author': u'Е. Нижибицкий',
+    }
+
+    def __init__(self, x_train, y_train, window_size=20):
+        weights = lambda dists: np.float32(dists <= window_size) + 0.01
+        Classifier.__init__(self, KNeighborsClassifier(n_neighbors=5000,
+                weights=weights, algorithm='brute'), x_train, y_train)

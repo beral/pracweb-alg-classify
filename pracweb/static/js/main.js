@@ -65,7 +65,15 @@ function btnSubmit_do() {
     .progressbar()
     .show();
   var onSuccess = function(data) {
-    console.log(data);
+   // console.log(data);
+   /*
+    $("#alerts").prepend(
+    '<div class="alert alert-success">'
+    + '<button type="button" class="close" '
+    + 'data-dismiss="alert">&times;</button>'
+    + '<pre>' + data.text + '</pre>'
+    + '</div>');
+    */
 
     last_result = data;
     g_updateView();
@@ -82,7 +90,7 @@ function btnSubmit_do() {
     $("#btnSubmit").button("reset");
   };
   var onError = function(jqxhr, textStatus, errorThrown) {
-    $("#alerts").append(
+    $("#alerts").prepend(
     '<div class="alert alert-error">'
     + '<button type="button" class="close" '
     + 'data-dismiss="alert">&times;</button>'
@@ -443,14 +451,15 @@ function updateObjectView(data) {
 }
 
 function updateResultView(data) {
-  var $widgets = $("#mapToggles, #tblMetrics, #tblConfMatrix");
+  var $widgets = $("#mapToggles, #tblMetrics, #tblConfMatrix, #txtModelDescription")
 
   if (!data) {
     $widgets.hide();
     visual.current_map = null;
   } else {
     $widgets.show();
-
+        
+    $("#txtModelDescription pre").text(data.text);
     updateMapSelector(data.maps); 
     updateMetricsTable(data.metrics);
     updateConfusionMatrixTable(data.confusion_matrix);

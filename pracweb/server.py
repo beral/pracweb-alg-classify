@@ -53,7 +53,7 @@ def operations():
         },
         'default': {
             'classifiers': ['naive_bayesian'],
-            'correctors': ['mean'],
+            'correctors': ['monotone_affine_berezin'],
         },
     })
 

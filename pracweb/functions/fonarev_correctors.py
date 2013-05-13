@@ -59,7 +59,7 @@ class MonotoneLinear(object):
         return result
 
     def describe(self):
-        return {'weights': list(self.weights)}
+        return {'weights': map(float, self.weights)}
 
 @corrector("monotone_linear_potapenko")
 class MonotoneLinearPotapenko(MonotoneLinear):
@@ -128,7 +128,7 @@ class MonotoneAffine(object):
         return result
 
     def describe(self):
-        return {'weights': list(self.weights)}
+        return {'weights': map(float, self.weights)}
 
 @corrector("monotone_affine_lobacheva")
 class MonotoneAffineLovacheva(MonotoneAffine):
@@ -176,7 +176,7 @@ class SpecialAffine(object):
         return result
 
     def describe(self):
-        return {'weights': list(self.weights)}
+        return {'weights': map(float, self.weights)}
 
 @corrector("special_affine_malysheva")
 class SpecialAffineMalysheva(SpecialAffine):
@@ -224,7 +224,7 @@ class SpecialMonotoneAffine(object):
         return result
 
     def describe(self):
-        return {'weights': list(self.weights)}
+        return {'weights': map(float, self.weights)}
 
 @corrector("special_monotone_affine_gavrikov")
 class SpecialMonotoneAffineGavrikov(SpecialMonotoneAffine):
