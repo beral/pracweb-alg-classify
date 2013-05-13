@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created by diasvg.py -->
+<svg width="47.630cm" height="21.560cm" viewBox="3.450 1.350 51.080 22.910"
+ xmlns="http://www.w3.org/2000/svg"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+<rect x="3.500" y="1.400" width="13.000" height="21.400" fill="#FFFFFF" stroke="none" stroke-width="0"/>
+<rect x="3.500" y="1.400" width="13.000" height="21.400" fill="none" stroke="#000000" stroke-width="0.100" />
+<rect x="20.765" y="1.460" width="13.000" height="21.400" fill="#FFFFFF" stroke="none" stroke-width="0"/>
+<rect x="20.765" y="1.460" width="13.000" height="21.400" fill="none" stroke="#000000" stroke-width="0.100" />
+<rect x="38.030" y="1.420" width="13.000" height="21.400" fill="#FFFFFF" stroke="none" stroke-width="0"/>
+<rect x="38.030" y="1.420" width="13.000" height="21.400" fill="none" stroke="#000000" stroke-width="0.100" />
+<rect x="38.850" y="3.650" width="11.500" height="13.200" fill="#FFFFFF" stroke="none" stroke-width="0"/>
+<rect x="38.850" y="3.650" width="11.500" height="13.200" fill="none" stroke="#000000" stroke-width="0.100" />
+<text x="8.400" y="2.500"  fill="#000000" text-anchor="start" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
+Клиент</text>
+<text x="24.815" y="2.705"  fill="#000000" text-anchor="start" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
+HTTP-сервер</text>
+<text x="42.565" y="2.555"  fill="#000000" text-anchor="start" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
+Сервер задач</text>
+<rect x="4.450" y="3.700" width="11.150" height="5.950" fill="#FFFFFF" stroke="none" stroke-width="0"/>
+<rect x="4.450" y="3.700" width="11.150" height="5.950" fill="none" stroke="#000000" stroke-width="0.100" />
+<rect x="24.550" y="5.500" width="5.000" height="1.450" fill="#FFFFFF" stroke="none" stroke-width="0"/>
+<rect x="24.550" y="5.500" width="5.000" height="1.450" fill="none" stroke="#000000" stroke-width="0.100" />
+<rect x="40.750" y="4.500" width="7.950" height="2.100" fill="#FFFFFF" stroke="none" stroke-width="0"/>
+<rect x="40.750" y="4.500" width="7.950" height="2.100" fill="none" stroke="#000000" stroke-width="0.100" />
+<rect x="41.000" y="8.650" width="7.650" height="1.900" fill="#FFFFFF" stroke="none" stroke-width="0"/>
+<rect x="41.000" y="8.650" width="7.650" height="1.900" fill="none" stroke="#000000" stroke-width="0.100" />
+<rect x="41.050" y="12.400" width="7.550" height="2.850" fill="#FFFFFF" stroke="none" stroke-width="0"/>
+<rect x="41.050" y="12.400" width="7.550" height="2.850" fill="none" stroke="#000000" stroke-width="0.100" />
+<line x1="15.600" y1="6.675" x2="24.064" y2="6.249" stroke="#000000" stroke-width="0.100" />
+<polygon fill="#000000" stroke="none" stroke-width="0.100" points="24.438,6.231 23.952,6.505 24.064,6.249 23.926,6.006 "/>
+<polygon fill="none" stroke="#000000" stroke-width="0.100"  points="24.438,6.231 23.952,6.505 24.064,6.249 23.926,6.006 "/>
+<line x1="29.550" y1="6.225" x2="40.264" y2="5.579" stroke="#000000" stroke-width="0.100" />
+<polygon fill="#000000" stroke="none" stroke-width="0.100" points="40.638,5.557 40.154,5.836 40.264,5.579 40.124,5.337 "/>
+<polygon fill="none" stroke="#000000" stroke-width="0.100"  points="40.638,5.557 40.154,5.836 40.264,5.579 40.124,5.337 "/>
+<line x1="44.725" y1="6.600" x2="44.801" y2="8.164" stroke="#000000" stroke-width="0.100" />
+<polygon fill="#000000" stroke="none" stroke-width="0.100" points="44.820,8.538 44.545,8.051 44.801,8.164 45.045,8.027 "/>
+<polygon fill="none" stroke="#000000" stroke-width="0.100"  points="44.820,8.538 44.545,8.051 44.801,8.164 45.045,8.027 "/>
+<line x1="44.825" y1="10.550" x2="44.825" y2="11.913" stroke="#000000" stroke-width="0.100" />
+<polygon fill="#000000" stroke="none" stroke-width="0.100" points="44.825,12.288 44.575,11.788 44.825,11.913 45.075,11.788 "/>
+<polygon fill="none" stroke="#000000" stroke-width="0.100"  points="44.825,12.288 44.575,11.788 44.825,11.913 45.075,11.788 "/>
+<rect x="24.550" y="11.650" width="5.350" height="1.600" fill="#FFFFFF" stroke="none" stroke-width="0"/>
+<rect x="24.550" y="11.650" width="5.350" height="1.600" fill="none" stroke="#000000" stroke-width="0.100" />
+<rect x="4.450" y="12.900" width="10.750" height="6.050" fill="#FFFFFF" stroke="none" stroke-width="0"/>
+<rect x="4.450" y="12.900" width="10.750" height="6.050" fill="none" stroke="#000000" stroke-width="0.100" />
+<text x="4.725" y="3.550"  fill="#000000" text-anchor="start" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
+Ввод</text>
+<text x="4.700" y="12.100"  fill="#000000" text-anchor="start" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
+Визуализация</text>
+<rect x="5.450" y="5.150" width="4.200" height="2.700" fill="#FFFFFF" stroke="none" stroke-width="0"/>
+<rect x="5.450" y="5.150" width="4.200" height="2.700" fill="none" stroke="#000000" stroke-width="0.100" />
+<rect x="10.400" y="5.150" width="4.100" height="2.750" fill="#FFFFFF" stroke="none" stroke-width="0"/>
+<rect x="10.400" y="5.150" width="4.100" height="2.750" fill="none" stroke="#000000" stroke-width="0.100" />
+<rect x="9.700" y="13.600" width="4.950" height="4.550" fill="#FFFFFF" stroke="none" stroke-width="0"/>
+<rect x="9.700" y="13.600" width="4.950" height="4.550" fill="none" stroke="#000000" stroke-width="0.100" />
+<rect x="5.000" y="13.550" width="4.350" height="1.900" fill="#FFFFFF" stroke="none" stroke-width="0"/>
+<rect x="5.000" y="13.550" width="4.350" height="1.900" fill="none" stroke="#000000" stroke-width="0.100" />
+<rect x="5.000" y="16.400" width="4.300" height="1.750" fill="#FFFFFF" stroke="none" stroke-width="0"/>
+<rect x="5.000" y="16.400" width="4.300" height="1.750" fill="none" stroke="#000000" stroke-width="0.100" />
+<text x="6.300" y="6.550"  fill="#000000" text-anchor="start" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
+Модель</text>
+<text x="11.100" y="6.575"  fill="#000000" text-anchor="start" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
+Объекты</text>
+<text x="5.575" y="14.600"  fill="#000000" text-anchor="start" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
+Текстовая</text>
+<text x="5.400" y="17.425"  fill="#000000" text-anchor="start" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
+Табличная</text>
+<text x="10.000" y="16.025"  fill="#000000" text-anchor="start" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
+Графическая</text>
+<line x1="12.450" y1="7.900" x2="12.198" y2="13.114" stroke="#000000" stroke-width="0.100" />
+<polygon fill="#000000" stroke="none" stroke-width="0.100" points="12.180,13.488 11.955,12.977 12.198,13.114 12.454,13.001 "/>
+<polygon fill="none" stroke="#000000" stroke-width="0.100"  points="12.180,13.488 11.955,12.977 12.198,13.114 12.454,13.001 "/>
+<line x1="41.050" y1="13.825" x2="30.383" y2="12.510" stroke="#000000" stroke-width="0.100" />
+<polygon fill="#000000" stroke="none" stroke-width="0.100" points="30.011,12.464 30.538,12.277 30.383,12.510 30.477,12.773 "/>
+<polygon fill="none" stroke="#000000" stroke-width="0.100"  points="30.011,12.464 30.538,12.277 30.383,12.510 30.477,12.773 "/>
+<line x1="24.550" y1="12.450" x2="15.656" y2="15.755" stroke="#000000" stroke-width="0.100" />
+<polygon fill="#000000" stroke="none" stroke-width="0.100" points="15.305,15.886 15.686,15.478 15.656,15.755 15.861,15.946 "/>
+<polygon fill="none" stroke="#000000" stroke-width="0.100"  points="15.305,15.886 15.686,15.478 15.656,15.755 15.861,15.946 "/>
+<line x1="16.600" y1="11.950" x2="24.064" y2="11.668" stroke="#000000" stroke-width="0.100" stroke-dasharray="1.00,1.00"/>
+<polygon fill="#000000" stroke="none" stroke-width="0.100" points="24.438,11.654 23.948,11.923 24.064,11.668 23.929,11.423 "/>
+<polygon fill="none" stroke="#000000" stroke-width="0.100"  points="24.438,11.654 23.948,11.923 24.064,11.668 23.929,11.423 "/>
+<line x1="29.900" y1="11.650" x2="38.369" y2="10.325" stroke="#000000" stroke-width="0.100" stroke-dasharray="1.00,1.00"/>
+<polygon fill="#000000" stroke="none" stroke-width="0.100" points="38.740,10.267 38.284,10.592 38.369,10.325 38.207,10.098 "/>
+<polygon fill="none" stroke="#000000" stroke-width="0.100"  points="38.740,10.267 38.284,10.592 38.369,10.325 38.207,10.098 "/>
+<text x="42.325" y="13.225"  fill="#000000" text-anchor="start" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
+Описание</text>
+<text x="42.325" y="14.025"  fill="#000000" text-anchor="start" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
+Оценка</text>
+<text x="42.325" y="14.825"  fill="#000000" text-anchor="start" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
+Карта</text>
+<text x="41.475" y="5.650"  fill="#000000" text-anchor="start" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
+Постановка задачи</text>
+<text x="41.225" y="9.800"  fill="#000000" text-anchor="start" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
+Построенная модель</text>
+<text x="25.800" y="6.225"  fill="#000000" text-anchor="start" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
+Запрос</text>
+<text x="25.525" y="12.700"  fill="#000000" text-anchor="start" font-size="0.80" font-family="sans" font-style="normal" font-weight="400">
+Результат</text>
+</svg>
