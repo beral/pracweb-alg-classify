@@ -42,7 +42,6 @@ def report(report_name, filename='index.html'):
         return flask.send_file(full_path)
 
 
-
 @app.route('/api/operations')
 def operations():
     classifiers, correctors = tasks.get_functions.delay().get(timeout=1)
@@ -53,7 +52,7 @@ def operations():
         },
         'default': {
             'classifiers': ['naive_bayesian'],
-            'correctors': ['monotone_affine_berezin'],
+            'correctors': ['monotone_linear_gavrikov'],
         },
     })
 
