@@ -75,7 +75,8 @@ function btnSubmit_do() {
     + '</div>');
     */
 
-    last_result = data;
+    output = data;
+    output.current = output.results.length-1;
     g_updateView();
 
     $("#requestProgress .bar")
@@ -598,9 +599,14 @@ function updateModelState() {
     var list = d3.select(selector).selectAll("li")
       .data(src, function(d, i) { return i; });
 
-    list.enter().append("li");
+    list.enter().append("li").append("a");
     list.exit().remove();
-    list.html(function(d) { return opTitle(table, d); });
+    list.select("a")
+      .html(function(d) { return opTitle(table, d); })
+      .on('click', function(d, i) {
+        output.current = table==operators.classifiers? i : output.results.length-1;
+        g_updateView();
+      });
   }
 
   function updateDialogView(selector, src, table) {
@@ -637,8 +643,8 @@ function updateStaticModelState() {
       .enter().append("li")
       .append("a")
           .html(function(d) { return opTitle(table, d); })
-          .on('click', function() {
-            dest.push(this.__data__);
+          .on('click', function(d) {
+            dest.push(d);
             updateModelState();
           });
   }
@@ -646,9 +652,9 @@ function updateStaticModelState() {
 
 // Achtung: global variables!
 var input = { objects: null, classifiers: null, correctors: null};
+var output = null;
 var operators = null;
 var visual = new Object();
-var last_result = null;
 var metrics = null;
 var confusion_matrix = null;
 var margin = {top: 20, right: 20, bottom: 30, left: 40};
@@ -660,7 +666,9 @@ function async(f) {
 
 function g_updateView() {
   async(function() {
-    updateResultView(last_result);
+    if (output) {
+      updateResultView(output.results[output.current]);
+    }
     updateObjectView(input.objects);
   });
 }
@@ -673,7 +681,6 @@ $(document).ready(function() {
   });
   $("#inputData").change(function() {
     input.objects = parseInput($("#inputData").val());
-    last_result = null;
     g_updateView();
   });
   $(window).resize(resizeViewport);

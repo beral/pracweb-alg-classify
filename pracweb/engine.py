@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import os.path
 import yaml
 import numpy as np
 import ctypes
-import Image
 import sklearn.metrics as skm
 
 from . import registry
@@ -67,11 +65,16 @@ def describe_model(model):
             result['params'] = x.describe()
         return result
 
-    classifiers, corrector = model
-    model_params = dict(
-        classifiers=[describe(x) for x in classifiers],
-        corrector=describe(corrector))
-    return yaml.safe_dump(model_params, allow_unicode=True, default_flow_style=False)
+    if callable(model):
+        #return describe(model)
+        return "go away, desu~"
+    else:
+        classifiers, corrector = model
+        return yaml.safe_dump(describe(corrector), allow_unicode=True, default_flow_style=False)
+        #model_params = dict(
+        #    classifiers=[describe(x) for x in classifiers],
+        #    corrector=describe(corrector))
+        #return yaml.safe_dump(model_params, allow_unicode=True, default_flow_style=False)
 
 
 def build_map(model, problem):
@@ -139,7 +142,7 @@ def apply_model(model, x, n_classes):
 
     if callable(model):
         Kprobs = model(x)
-        return np.reshape(Kprobs, Kprobs.shape + (1,))
+        return Kprobs
     else:
         classifiers, corrector = model
         Kprobs = np.empty((x.shape[0], n_classes, len(classifiers)))
@@ -181,7 +184,7 @@ def make_visuals(Fprobs, problem):
     native.visualize(
         Fprobs.shape[0],
         Fprobs.shape[1],
-        Fprobs,
+        np.array(Fprobs, order='C'),
         cmap,
         np.empty((Fprobs.shape[0], 2), dtype=ctypes.c_size_t),  # argmaxs
         np.empty(Fprobs.shape[1], dtype=ctypes.c_double),  # diff_norms
@@ -200,18 +203,3 @@ def make_visuals(Fprobs, problem):
         'linspace_clamped': toimg(viz_linspace_clamped),
         'diff': toimg(viz_diff),
     }
-
-
-def store_images(images, task_id, store_path):
-    '''Сохранить картинки диаграмм на диск'''
-
-    if not os.path.isdir(store_path):
-        os.mkdir(store_path)
-
-    paths = dict()
-    for name, imgbuf in images.iteritems():
-        Image.fromarray(imgbuf).save(os.path.join(
-            store_path,
-            '{0}_{1}.png'.format(task_id, name)))
-        paths[name] = 'result/{0}/{1}.png'.format(task_id, name)
-    return paths

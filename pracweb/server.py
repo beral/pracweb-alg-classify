@@ -103,4 +103,4 @@ def check_status(task_id):
 def result(task_id, filename):
     return flask.send_from_directory(
         STORE_PATH,
-        '{0}_{1}'.format(task_id, filename))
+        '{0}/{1}'.format(task_id, filename))
