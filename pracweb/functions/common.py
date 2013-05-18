@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from sklearn.multiclass import OneVsRestClassifier
 
 
@@ -19,4 +21,3 @@ class Classifier(object):
             (k, v)
             for k, v in self.clf.get_params().iteritems()
             if not callable(v))
-              

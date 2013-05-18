@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import os.path
 import yaml
 import numpy as np
@@ -10,9 +12,11 @@ from . import native
 
 
 def solve(problem):
+    '''Построить модель'''
+
     def make_sample(data):
         indexes = np.random.permutation(data[0].shape[0])
-        indexes = indexes[:len(indexes)/2 + 1]
+        indexes = indexes[:len(indexes) / 2 + 1]
         x_new = data[0][indexes, :]
         y_new = data[1][indexes]
 
@@ -43,13 +47,18 @@ def solve(problem):
 
     # TODO: use all correctors, not [0]
     corrector = registry.correctors[problem.model.correctors[0]](
-        apply_classifiers(classifiers, problem.data.learn[0], n_classes),
+        apply_model(
+            (classifiers, None),
+            problem.data.learn[0],
+            n_classes),
         problem.data.learn[1])
 
     return classifiers, corrector
 
 
 def describe_model(model):
+    '''Получить текстовое описание модели'''
+
     def describe(x):
         result = dict(meta=None, params=None)
         if hasattr(x, 'description'):
@@ -66,22 +75,24 @@ def describe_model(model):
 
 
 def build_map(model, problem):
-    classifiers, corrector = model
+    '''Применить модель к двухмерной карте'''
+
     n_classes = len(problem.data.class_names)
     Xgrid = make_grid(problem.grid)
-    Kprobs = apply_classifiers(classifiers, Xgrid, n_classes)
-    return corrector(Kprobs)
+    Kprobs = apply_model(model, Xgrid, n_classes)
+    return Kprobs
 
 
+# TODO: (test, learn, learn+test)
 def eval_model(model, problem):
-    classifiers, corrector = model
+    '''Оценить модель на прецедентах'''
     class_names = problem.data.class_names
     n_classes = len(class_names)
-    Fprobs = corrector(
-        apply_classifiers(classifiers, problem.data.test[0], n_classes))
+    Fprobs = apply_model(model, problem.data.test[0], n_classes)
     y_true = problem.data.test[1]
     y_pred = np.argmax(Fprobs, 1)
     labels = range(0, n_classes)
+
     metrics = skm.precision_recall_fscore_support(y_true, y_pred, labels=labels)
     confusion_matrix = skm.confusion_matrix(y_true, y_pred, labels)
     precision, recall, fscore, support = metrics
@@ -108,6 +119,7 @@ def eval_model(model, problem):
 
 
 def make_grid(grid):
+    '''Создать набор объектов для двухмерной карты'''
     xx = np.linspace(grid.left,
                      grid.right,
                      grid.width)
@@ -118,14 +130,30 @@ def make_grid(grid):
     return np.c_[xx.ravel(), yy.ravel()]
 
 
-def apply_classifiers(classifiers, x, n_classes):
-    Kprobs = np.empty((x.shape[0], n_classes, len(classifiers)))
-    for i in xrange(0, len(classifiers)):
-        Kprobs[:, :, i] = classifiers[i](x)
-    return Kprobs
+def apply_model(model, x, n_classes):
+    '''Применить модель к данным.
+
+    x - (n x 2) матрица данных
+    model - ([classifiers], corrector) ИЛИ classifier
+    '''
+
+    if callable(model):
+        Kprobs = model(x)
+        return np.reshape(Kprobs, Kprobs.shape + (1,))
+    else:
+        classifiers, corrector = model
+        Kprobs = np.empty((x.shape[0], n_classes, len(classifiers)))
+        for i in xrange(0, len(classifiers)):
+            Kprobs[:, :, i] = classifiers[i](x)
+        if corrector:
+            return corrector(Kprobs)
+        else:
+            return Kprobs
 
 
 def prepare_cmap(problem):
+    '''Преобразовать карту цветов к матрице'''
+
     n_classes = len(problem.data.class_names)
     cmap = np.empty((n_classes, 3))
     for c in xrange(0, n_classes):
@@ -134,6 +162,8 @@ def prepare_cmap(problem):
 
 
 def make_visuals(Fprobs, problem):
+    '''Построить двухмерные диаграммы классификации'''
+
     cmap = prepare_cmap(problem)
 
     newimg = lambda: np.empty(
@@ -173,6 +203,8 @@ def make_visuals(Fprobs, problem):
 
 
 def store_images(images, task_id, store_path):
+    '''Сохранить картинки диаграмм на диск'''
+
     if not os.path.isdir(store_path):
         os.mkdir(store_path)
 

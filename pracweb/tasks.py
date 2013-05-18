@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from celery import Celery, current_task
 
 import pracweb.flags as flags
