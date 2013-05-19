@@ -33,6 +33,11 @@ class NaiveBayesianKondr(NaiveBayesian):
 class NaiveBayesianLobacheva(NaiveBayesian):
     description = {'author': u'Е. Лобачева', 'name': u'Наивный байес'}
 
+
+@classifier('naive_bayesian_gavrikov')
+class NaiveBayesianGavrikov(NaiveBayesian):
+    description = {'author': u'М. Гавриков', 'name': u'Наивный байес'}
+
 @classifier('naive_bayesian_shai')
 class NaiveBayesianShai(NaiveBayesian):
     description = {'author': u'И. Шаймарданов', 'name': u'Наивный байес'}

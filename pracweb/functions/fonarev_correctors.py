@@ -195,6 +195,7 @@ class SpecialMonotoneAffine(object):
             self.weights *= np.random.random(len(self.weights)) * 0.2 + 0.9
             self.relearned = True
 
+
 class Polynomial(object):
     def __init__(self, x_learn, y_learn):
         self.relearned = False
