@@ -32,10 +32,11 @@ def history():
         task_id = os.path.basename(task)
         for image in glob.iglob(os.path.join(task, '*.png')):
             images.append(
-                    flask.url_for(
-                        'result',
-                        task_id=task_id,
-                        filename=os.path.basename(image)))
+                flask.url_for(
+                    'result',
+                    task_id=task_id,
+                    filename=os.path.basename(image)))
+        images.sort()
         with open(os.path.join(task, 'meta.json')) as f:
             meta = json.load(f)
         if images:
