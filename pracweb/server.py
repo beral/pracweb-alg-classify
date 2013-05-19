@@ -51,8 +51,8 @@ def operations():
             'correctors': correctors,
         },
         'default': {
-            'classifiers': ['naive_bayesian'],
-            'correctors': ['monotone_linear_gavrikov'],
+            'classifiers': ['naive_bayesian_lobacheva'],
+            'correctors': ['monotone_linear_malysheva'],
         },
     })
 

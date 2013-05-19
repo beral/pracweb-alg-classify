@@ -596,17 +596,23 @@ function updateModelState() {
       operators.correctors);
 
   function updateMainView(selector, src, table) {
+    $(selector).empty();
+
     var list = d3.select(selector).selectAll("li")
       .data(src, function(d, i) { return i; });
 
-    list.enter().append("li").append("a");
-    list.exit().remove();
-    list.select("a")
-      .html(function(d) { return opTitle(table, d); })
-      .on('click', function(d, i) {
-        output.current = table==operators.classifiers? i : output.results.length-1;
-        g_updateView();
-      });
+    if (output) {
+      list.enter().append("li").append("a")
+        .html(function(d) { return opTitle(table, d); })
+        .on('click', function(d, i) {
+          output.current = table==operators.classifiers? i : output.results.length-1;
+          g_updateView();
+        });
+    }
+    else {
+      list.enter().append("li")
+        .html(function(d) { return opTitle(table, d); });
+    }
   }
 
   function updateDialogView(selector, src, table) {
@@ -666,9 +672,12 @@ function async(f) {
 
 function g_updateView() {
   async(function() {
-    if (output) {
+    if (output)
       updateResultView(output.results[output.current]);
-    }
+    else
+      updateResultView(null);
+    if (operators)
+      updateModelState();
     updateObjectView(input.objects);
   });
 }
@@ -681,6 +690,7 @@ $(document).ready(function() {
   });
   $("#inputData").change(function() {
     input.objects = parseInput($("#inputData").val());
+    output = null;
     g_updateView();
   });
   $(window).resize(resizeViewport);
