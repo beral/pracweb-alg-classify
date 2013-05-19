@@ -28,6 +28,7 @@ def get_quality(real, predicted):
 
 class MonotoneLinear(object):
     def __init__(self, x_learn, y_learn):
+        self.relearned = False
         _, y = convert(y_learn)
         x = x_learn
         x, y = x - 0.5, y - 0.5
@@ -60,6 +61,11 @@ class MonotoneLinear(object):
 
     def describe(self):
         return {'weights': map(float, self.weights)}
+
+    def relearn(self):
+        if self.relearned:
+	    self.weights *= np.random.random(len(self.weights)) * 0.2 + 0.9        
+            self.relearned = True
 
 @corrector("monotone_linear_potapenko")
 class MonotoneLinearPotapenko(MonotoneLinear):
@@ -96,6 +102,7 @@ class MonotoneLinearKurakin(MonotoneLinear):
 
 class MonotoneAffine(object):
     def __init__(self, x_learn, y_learn):
+        self.relearned = False
         _, y = convert(y_learn)
         x = np.dstack([np.random.random(x_learn.shape[0:2]), x_learn])
         x, y = x - 0.5, y - 0.5
@@ -130,6 +137,11 @@ class MonotoneAffine(object):
     def describe(self):
         return {'weights': map(float, self.weights)}
 
+    def relearn(self):
+        if self.relearned:
+	    self.weights *= np.random.random(len(self.weights)) * 0.2 + 0.9        
+            self.relearned = True
+
 @corrector("monotone_affine_lobacheva")
 class MonotoneAffineLovacheva(MonotoneAffine):
     description = {'author': u'Е. Лобачева', 'name': u'Монотонная аффинная КО'}
@@ -144,6 +156,7 @@ class MonotoneAffineBerezin(MonotoneAffine):
 
 class SpecialAffine(object):
     def __init__(self, x_learn, y_learn):
+        self.relearned = False
         _, y = convert(y_learn)
         x = x_learn
         x, y = x - 0.5, y - 0.5
@@ -178,6 +191,11 @@ class SpecialAffine(object):
     def describe(self):
         return {'weights': map(float, self.weights)}
 
+    def relearn(self):
+        if self.relearned:
+	    self.weights *= np.random.random(len(self.weights)) * 0.2 + 0.9        
+            self.relearned = True
+
 @corrector("special_affine_malysheva")
 class SpecialAffineMalysheva(SpecialAffine):
     description = {'author': u'Е. Малышева', 'name': u'Специальная аффинная КО'}
@@ -192,6 +210,7 @@ class SpecialAffineFonarev(SpecialAffine):
 
 class SpecialMonotoneAffine(object):
     def __init__(self, x_learn, y_learn):
+        self.relearned = False
         _, y = convert(y_learn)
         x = x_learn
         x, y = x - 0.5, y - 0.5
@@ -226,6 +245,11 @@ class SpecialMonotoneAffine(object):
     def describe(self):
         return {'weights': map(float, self.weights)}
 
+    def relearn(self):
+        if self.relearned:
+	    self.weights *= np.random.random(len(self.weights)) * 0.2 + 0.9        
+            self.relearned = True
+
 @corrector("special_monotone_affine_gavrikov")
 class SpecialMonotoneAffineGavrikov(SpecialMonotoneAffine):
     description = {'author': u'М. Гавриков', 'name': u'Специальная монотонная аффинная КО'}
@@ -240,6 +264,7 @@ class SpecialMonotoneAffineFonarev(SpecialMonotoneAffine):
 
 class Polynomial(object):
     def __init__(self, x_learn, y_learn):
+        self.relearned = False
         _, y = convert(y_learn)
         x = x_learn
         x, y = x - 0.5, y - 0.5
@@ -274,6 +299,11 @@ class Polynomial(object):
     def describe(self):
         return {'weights': map(float, self.weights),
                 'degrees': [1.02,] + map(float, np.random.random(len(self.weights) - 1) * 2)}
+
+    def relearn(self):
+        if self.relearned:
+	    self.weights *= np.random.random(len(self.weights)) * 0.2 + 0.9        
+            self.relearned = True
 
 @corrector("polynomial_lobacheva")
 class PolynomialLobacheva(Polynomial):
