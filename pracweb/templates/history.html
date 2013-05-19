@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}History{% endblock %}
+
+{% block header %}
+<div class="page-header">
+  <h1>
+    Классификатор
+    <small>[История]</small>
+    <small><a href="reports" class="pull-right">
+        Отчеты&nbsp;&rarr;
+    </a></small>
+  </h1>
+</div>
+{% endblock %}
+
+{% block body %}
+<ul class="thumbnails">
+  {% for operation in operations %}
+  <li class="span2">
+    <div class="thumbnail">
+      <img src="{{ operation['images'][-4] }}">
+      <p><small>{{ operation['meta']['start_time'].replace('T','<br>') | safe }}</small></p>
+    </div>
+  </li>
+  {% endfor %}
+</ul>
+{% endblock %}
+
+<!-- vim: set ft=htmldjango si sw=2 : -->
+

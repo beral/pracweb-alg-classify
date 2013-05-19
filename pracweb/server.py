@@ -3,6 +3,8 @@
 import traceback
 import pprint
 import os.path
+import glob
+import json
 
 import flask
 from flask import Flask, request
@@ -20,6 +22,22 @@ app = Flask('pracweb')
 @app.route('/')
 def index():
     return flask.render_template('index.html')
+
+
+@app.route('/history')
+def history():
+    operations = []
+    for operation in glob.iglob(os.path.join(STORE_PATH, '*')):
+        images = []
+        operation_id = os.path.basename(operation)
+        for image in glob.iglob(os.path.join(operation, '*.png')):
+            images.append('/result/{0}/{1}'.format(operation_id, os.path.basename(image)))
+        with open(os.path.join(operation, 'meta.json')) as f:
+            meta = json.load(f)
+        if images:
+            operations.append({'id': operation_id, 'images': images, 'meta': meta})
+    operations.sort(key=lambda x: x['meta']['start_time'], reverse=True)
+    return flask.render_template('history.html', operations=operations)
 
 
 @app.route('/reports/')
