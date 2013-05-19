@@ -24,20 +24,24 @@ def index():
     return flask.render_template('index.html')
 
 
-@app.route('/history')
+@app.route('/history/')
 def history():
-    operations = []
-    for operation in glob.iglob(os.path.join(STORE_PATH, '*')):
+    tasks = []
+    for task in glob.iglob(os.path.join(STORE_PATH, '*')):
         images = []
-        operation_id = os.path.basename(operation)
-        for image in glob.iglob(os.path.join(operation, '*.png')):
-            images.append('/result/{0}/{1}'.format(operation_id, os.path.basename(image)))
-        with open(os.path.join(operation, 'meta.json')) as f:
+        task_id = os.path.basename(task)
+        for image in glob.iglob(os.path.join(task, '*.png')):
+            images.append(
+                    flask.url_for(
+                        'result',
+                        task_id=task_id,
+                        filename=os.path.basename(image)))
+        with open(os.path.join(task, 'meta.json')) as f:
             meta = json.load(f)
         if images:
-            operations.append({'id': operation_id, 'images': images, 'meta': meta})
-    operations.sort(key=lambda x: x['meta']['start_time'], reverse=True)
-    return flask.render_template('history.html', operations=operations)
+            tasks.append({'id': task_id, 'images': images, 'meta': meta})
+    tasks.sort(key=lambda x: x['meta']['start_time'], reverse=True)
+    return flask.render_template('history.html', tasks=tasks)
 
 
 @app.route('/reports/')

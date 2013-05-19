@@ -16,11 +16,11 @@
 
 {% block body %}
 <ul class="thumbnails">
-  {% for operation in operations %}
+  {% for task in tasks %}
   <li class="span2">
     <div class="thumbnail">
-      <img src="{{ operation['images'][-4] }}">
-      <p><small>{{ operation['meta']['start_time'].replace('T','<br>') | safe }}</small></p>
+      <img src="{{ task['images'][-4] }}">
+      <p><small>{{ task['meta']['start_time'].replace('T','<br>') | safe }}</small></p>
     </div>
   </li>
   {% endfor %}
