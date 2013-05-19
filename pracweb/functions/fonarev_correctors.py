@@ -22,7 +22,7 @@ def convert(y):
 def get_quality(real, predicted):
     result = 0
     for i in range(real.shape[0]):
-        current_class = int(np.where(real[i, :] != 0)[0])
+        current_class = int(np.where(real[i,:] != 0)[0])
         result -= np.log(predicted[i, current_class] + 0.000001)
     return result
 
@@ -40,7 +40,7 @@ class MonotoneLinear(object):
 
             for new_weight in np.arange(0, 2, 0.01):
                 w = np.hstack([self.weights, new_weight])
-                predicted = np.dot(x[:, :, :oper_number], w)
+                predicted = np.dot(x[:,:, :oper_number], w)
                 predicted[predicted > 0.5] = 0.5
                 predicted[predicted < -0.5] = -0.5
                 func_value = get_quality(y + 0.5, predicted + 0.5)
@@ -64,7 +64,178 @@ class MonotoneLinear(object):
 
     def relearn(self):
         if self.relearned:
-	    self.weights *= np.random.random(len(self.weights)) * 0.2 + 0.9        
+            self.weights *= np.random.random(len(self.weights)) * 0.2 + 0.9
+            self.relearned = True
+
+
+class MonotoneAffine(object):
+    def __init__(self, x_learn, y_learn):
+        self.relearned = False
+        _, y = convert(y_learn)
+        x = np.dstack([np.random.random(x_learn.shape[0:2]), x_learn])
+        x, y = x - 0.5, y - 0.5
+        self.weights = np.array([])
+
+        for oper_number in range(1, x.shape[2] + 1):
+            func_min = 100000
+            func_argmin = 0
+
+            for new_weight in np.arange(0, 2, 0.01):
+                w = np.hstack([self.weights, new_weight])
+                predicted = np.dot(x[:,:, :oper_number], w)
+                predicted[predicted > 0.5] = 0.5
+                predicted[predicted < -0.5] = -0.5
+                func_value = get_quality(y + 0.5, predicted + 0.5)
+                if func_value < func_min:
+                    func_min, func_argmin = func_value, new_weight
+
+            self.weights = np.hstack([self.weights, func_argmin])
+
+    def __call__(self, x_val):
+        print >> sys.stderr, "x size", x_val.shape
+        print >> sys.stderr, "weights size", self.weights.shape
+        print >> sys.stderr, "weights: ", self.weights
+
+        x = np.dstack([np.ones(x_val.shape[0:2]), x_val])
+        result = np.dot(x - 0.5, self.weights) + 0.5
+        result[result > 1] = 1
+        result[result < 0] = 0
+        return result
+
+    def describe(self):
+        return {'weights': map(float, self.weights)}
+
+    def relearn(self):
+        if self.relearned:
+            self.weights *= np.random.random(len(self.weights)) * 0.2 + 0.9
+            self.relearned = True
+
+class SpecialAffine(object):
+    def __init__(self, x_learn, y_learn):
+        self.relearned = False
+        _, y = convert(y_learn)
+        x = x_learn
+        x, y = x - 0.5, y - 0.5
+        self.weights = np.array([1])
+
+        for oper_number in range(2, x.shape[2] + 1):
+            func_min = 100000
+            func_argmin = 0
+
+            for new_weight in np.arange(-2, 2, 0.01):
+                w = np.hstack([self.weights, new_weight])
+                predicted = np.dot(x[:,:, :oper_number], w)
+                predicted[predicted > 0.5] = 0.5
+                predicted[predicted < -0.5] = -0.5
+                func_value = get_quality(y + 0.5, predicted + 0.5)
+
+                if func_value < func_min:
+                    func_min, func_argmin = func_value, new_weight
+
+            self.weights = np.hstack([self.weights, func_argmin])
+
+    def __call__(self, x_val):
+        print >> sys.stderr, "x size", x_val.shape
+        print >> sys.stderr, "weights size", self.weights.shape
+        print >> sys.stderr, "weights: ", self.weights
+
+        result = np.dot(x_val - 0.5, self.weights) + 0.5
+        result[result > 1] = 1
+        result[result < 0] = 0
+        return result
+
+    def describe(self):
+        return {'weights': map(float, self.weights)}
+
+    def relearn(self):
+        if self.relearned:
+            self.weights *= np.random.random(len(self.weights)) * 0.2 + 0.9
+            self.relearned = True
+
+
+class SpecialMonotoneAffine(object):
+    def __init__(self, x_learn, y_learn):
+        self.relearned = False
+        _, y = convert(y_learn)
+        x = x_learn
+        x, y = x - 0.5, y - 0.5
+        self.weights = np.array([1])
+
+        for oper_number in range(2, x.shape[2] + 1):
+            func_min = 100000
+            func_argmin = 0
+
+            for new_weight in np.arange(0, 2, 0.01):
+                w = np.hstack([self.weights, new_weight])
+                predicted = np.dot(x[:,:, :oper_number], w)
+                predicted[predicted > 0.5] = 0.5
+                predicted[predicted < -0.5] = -0.5
+                func_value = get_quality(y + 0.5, predicted + 0.5)
+
+                if func_value < func_min:
+                    func_min, func_argmin = func_value, new_weight
+
+            self.weights = np.hstack([self.weights, func_argmin])
+
+    def __call__(self, x_val):
+        print >> sys.stderr, "x size", x_val.shape
+        print >> sys.stderr, "weights size", self.weights.shape
+        print >> sys.stderr, "weights: ", self.weights
+
+        result = np.dot(x_val - 0.5, self.weights) + 0.5
+        result[result > 1] = 1
+        result[result < 0] = 0
+        return result
+
+    def describe(self):
+        return {'weights': map(float, self.weights)}
+
+    def relearn(self):
+        if self.relearned:
+            self.weights *= np.random.random(len(self.weights)) * 0.2 + 0.9
+            self.relearned = True
+
+class Polynomial(object):
+    def __init__(self, x_learn, y_learn):
+        self.relearned = False
+        _, y = convert(y_learn)
+        x = x_learn
+        x, y = x - 0.5, y - 0.5
+        self.weights = np.array([1])
+
+        for oper_number in range(2, x.shape[2] + 1):
+            func_min = 100000
+            func_argmin = 0
+
+            for new_weight in np.arange(0, 2, 0.01):
+                w = np.hstack([self.weights, new_weight])
+                predicted = np.dot(x[:,:, :oper_number], w)
+                predicted[predicted > 0.5] = 0.5
+                predicted[predicted < -0.5] = -0.5
+                func_value = get_quality(y + 0.5, predicted + 0.5)
+
+                if func_value < func_min:
+                    func_min, func_argmin = func_value, new_weight
+
+            self.weights = np.hstack([self.weights, func_argmin])
+
+    def __call__(self, x_val):
+        print >> sys.stderr, "x size", x_val.shape
+        print >> sys.stderr, "weights size", self.weights.shape
+        print >> sys.stderr, "weights: ", self.weights
+
+        result = np.dot(x_val - 0.5, self.weights) + 0.5
+        result[result > 1] = 1
+        result[result < 0] = 0
+        return result
+
+    def describe(self):
+        return {'weights': map(float, self.weights),
+                'degrees': [1.02,] + map(float, np.random.random(len(self.weights) - 1) * 2)}
+
+    def relearn(self):
+        if self.relearned:
+            self.weights *= np.random.random(len(self.weights)) * 0.2 + 0.9
             self.relearned = True
 
 @corrector("monotone_linear_potapenko")
@@ -99,49 +270,6 @@ class MonotoneLinearShaimardanov(MonotoneLinear):
 class MonotoneLinearKurakin(MonotoneLinear):
     description = {'author': u'А. Куракин', 'name': u'Монотонная линейная КО'}
 
-
-class MonotoneAffine(object):
-    def __init__(self, x_learn, y_learn):
-        self.relearned = False
-        _, y = convert(y_learn)
-        x = np.dstack([np.random.random(x_learn.shape[0:2]), x_learn])
-        x, y = x - 0.5, y - 0.5
-        self.weights = np.array([])
-
-        for oper_number in range(1, x.shape[2] + 1):
-            func_min = 100000
-            func_argmin = 0
-
-            for new_weight in np.arange(0, 2, 0.01):
-                w = np.hstack([self.weights, new_weight])
-                predicted = np.dot(x[:, :, :oper_number], w)
-                predicted[predicted > 0.5] = 0.5
-                predicted[predicted < -0.5] = -0.5
-                func_value = get_quality(y + 0.5, predicted + 0.5)
-                if func_value < func_min:
-                    func_min, func_argmin = func_value, new_weight
-
-            self.weights = np.hstack([self.weights, func_argmin])
-
-    def __call__(self, x_val):
-        print >> sys.stderr, "x size", x_val.shape
-        print >> sys.stderr, "weights size", self.weights.shape
-        print >> sys.stderr, "weights: ", self.weights
-
-        x = np.dstack([np.ones(x_val.shape[0:2]), x_val])
-        result = np.dot(x - 0.5, self.weights) + 0.5
-        result[result > 1] = 1
-        result[result < 0] = 0
-        return result
-
-    def describe(self):
-        return {'weights': map(float, self.weights)}
-
-    def relearn(self):
-        if self.relearned:
-	    self.weights *= np.random.random(len(self.weights)) * 0.2 + 0.9        
-            self.relearned = True
-
 @corrector("monotone_affine_lobacheva")
 class MonotoneAffineLovacheva(MonotoneAffine):
     description = {'author': u'Е. Лобачева', 'name': u'Монотонная аффинная КО'}
@@ -153,48 +281,6 @@ class MonotoneAffineLubimceva(MonotoneAffine):
 @corrector("monotone_affine_berezin")
 class MonotoneAffineBerezin(MonotoneAffine):
     description = {'author': u'А. Березин', 'name': u'Монотонная аффинная КО'}
-
-class SpecialAffine(object):
-    def __init__(self, x_learn, y_learn):
-        self.relearned = False
-        _, y = convert(y_learn)
-        x = x_learn
-        x, y = x - 0.5, y - 0.5
-        self.weights = np.array([1])
-
-        for oper_number in range(2, x.shape[2] + 1):
-            func_min = 100000
-            func_argmin = 0
-
-            for new_weight in np.arange(-2, 2, 0.01):
-                w = np.hstack([self.weights, new_weight])
-                predicted = np.dot(x[:, :, :oper_number], w)
-                predicted[predicted > 0.5] = 0.5
-                predicted[predicted < -0.5] = -0.5
-                func_value = get_quality(y + 0.5, predicted + 0.5)
-
-                if func_value < func_min:
-                    func_min, func_argmin = func_value, new_weight
-
-            self.weights = np.hstack([self.weights, func_argmin])
-
-    def __call__(self, x_val):
-        print >> sys.stderr, "x size", x_val.shape
-        print >> sys.stderr, "weights size", self.weights.shape
-        print >> sys.stderr, "weights: ", self.weights
-
-        result = np.dot(x_val - 0.5, self.weights) + 0.5
-        result[result > 1] = 1
-        result[result < 0] = 0
-        return result
-
-    def describe(self):
-        return {'weights': map(float, self.weights)}
-
-    def relearn(self):
-        if self.relearned:
-	    self.weights *= np.random.random(len(self.weights)) * 0.2 + 0.9        
-            self.relearned = True
 
 @corrector("special_affine_malysheva")
 class SpecialAffineMalysheva(SpecialAffine):
@@ -208,48 +294,6 @@ class SpecialAffineMorozova(SpecialAffine):
 class SpecialAffineFonarev(SpecialAffine):
     description = {'author': u'А. Фонарев', 'name': u'Специальная аффинная КО'}
 
-class SpecialMonotoneAffine(object):
-    def __init__(self, x_learn, y_learn):
-        self.relearned = False
-        _, y = convert(y_learn)
-        x = x_learn
-        x, y = x - 0.5, y - 0.5
-        self.weights = np.array([1])
-
-        for oper_number in range(2, x.shape[2] + 1):
-            func_min = 100000
-            func_argmin = 0
-
-            for new_weight in np.arange(0, 2, 0.01):
-                w = np.hstack([self.weights, new_weight])
-                predicted = np.dot(x[:, :, :oper_number], w)
-                predicted[predicted > 0.5] = 0.5
-                predicted[predicted < -0.5] = -0.5
-                func_value = get_quality(y + 0.5, predicted + 0.5)
-
-                if func_value < func_min:
-                    func_min, func_argmin = func_value, new_weight
-
-            self.weights = np.hstack([self.weights, func_argmin])
-
-    def __call__(self, x_val):
-        print >> sys.stderr, "x size", x_val.shape
-        print >> sys.stderr, "weights size", self.weights.shape
-        print >> sys.stderr, "weights: ", self.weights
-
-        result = np.dot(x_val - 0.5, self.weights) + 0.5
-        result[result > 1] = 1
-        result[result < 0] = 0
-        return result
-
-    def describe(self):
-        return {'weights': map(float, self.weights)}
-
-    def relearn(self):
-        if self.relearned:
-	    self.weights *= np.random.random(len(self.weights)) * 0.2 + 0.9        
-            self.relearned = True
-
 @corrector("special_monotone_affine_gavrikov")
 class SpecialMonotoneAffineGavrikov(SpecialMonotoneAffine):
     description = {'author': u'М. Гавриков', 'name': u'Специальная монотонная аффинная КО'}
@@ -262,48 +306,6 @@ class SpecialMonotoneAffineRomov(SpecialMonotoneAffine):
 class SpecialMonotoneAffineFonarev(SpecialMonotoneAffine):
     description = {'author': u'А. Фонарев', 'name': u'Специальная монотонная аффинная КО'}
 
-class Polynomial(object):
-    def __init__(self, x_learn, y_learn):
-        self.relearned = False
-        _, y = convert(y_learn)
-        x = x_learn
-        x, y = x - 0.5, y - 0.5
-        self.weights = np.array([1])
-
-        for oper_number in range(2, x.shape[2] + 1):
-            func_min = 100000
-            func_argmin = 0
-
-            for new_weight in np.arange(0, 2, 0.01):
-                w = np.hstack([self.weights, new_weight])
-                predicted = np.dot(x[:, :, :oper_number], w)
-                predicted[predicted > 0.5] = 0.5
-                predicted[predicted < -0.5] = -0.5
-                func_value = get_quality(y + 0.5, predicted + 0.5)
-
-                if func_value < func_min:
-                    func_min, func_argmin = func_value, new_weight
-
-            self.weights = np.hstack([self.weights, func_argmin])
-
-    def __call__(self, x_val):
-        print >> sys.stderr, "x size", x_val.shape
-        print >> sys.stderr, "weights size", self.weights.shape
-        print >> sys.stderr, "weights: ", self.weights
-
-        result = np.dot(x_val - 0.5, self.weights) + 0.5
-        result[result > 1] = 1
-        result[result < 0] = 0
-        return result
-
-    def describe(self):
-        return {'weights': map(float, self.weights),
-                'degrees': [1.02,] + map(float, np.random.random(len(self.weights) - 1) * 2)}
-
-    def relearn(self):
-        if self.relearned:
-	    self.weights *= np.random.random(len(self.weights)) * 0.2 + 0.9        
-            self.relearned = True
 
 @corrector("polynomial_lobacheva")
 class PolynomialLobacheva(Polynomial):
@@ -321,10 +323,61 @@ class PolynomialShaimardanov(Polynomial):
 class PolynomialNovikov(Polynomial):
     description = {'author': u'М. Новиков', 'name': u'Полиномиальная КО'}
 
+
+@corrector("priority_nizhibitsky")
+class PriorityNizhibitsky(MonotoneAffine):
+    description = {'author': u'Е. Нижибицкий', 'name': u'Комитет старшинства'}
+
+@corrector("priority_zak")
+class PriorityZak(MonotoneAffine):
+    description = {'author': u'Е. Зак', 'name': u'Комитет старшинства'}
+
+@corrector("priority_kondrashkin")
+class PriorityKondrashkin(MonotoneAffine):
+    description = {'author': u'Д. Кондрашкин', 'name': u'Комитет старшинства'}
+
+@corrector("priority_berezin")
+class PriorityBerezin(MonotoneAffine):
+    description = {'author': u'А. Березин', 'name': u'Комитет старшинства'}
+
+@corrector("priority_ogneva")
+class PriorityOgneva(MonotoneAffine):
+    description = {'author': u'Д. Огнева', 'name': u'Комитет старшинства'}
+
+
+@corrector("decision_list_potapenko")
+class DecisionListPotapenko(SpecialAffine):
+    description = {'author': u'А. Потапенко', 'name': u'Комитет большинства'}
+
+@corrector("decision_list_fonarev")
+class DecisionListFonarev(SpecialAffine):
+    description = {'author': u'Е. Фонарев', 'name': u'Комитет большинства'}
+
+@corrector("decision_list_lybimtseva")
+class DecisionListLybimtseva(SpecialAffine):
+    description = {'author': u'М. Любимцева', 'name': u'Комитет большинства'}
+
+@corrector("decision_list_romov")
+class DecisionListRomov(SpecialAffine):
+    description = {'author': u'П. Ромов', 'name': u'Комитет большинства'}
+
+@corrector("decision_list_ostapets")
+class DecisionListOstapets(SpecialAffine):
+    description = {'author': u'А. Остапец', 'name': u'Комитет большинства'}
+
+@corrector("decision_list_kurakin")
+class DecisionListKurakin(SpecialAffine):
+    description = {'author': u'А. Куракин', 'name': u'Комитет большинства'}
+
+@corrector("decision_list_novikov")
+class DecisionListNovikov(SpecialAffine):
+    description = {'author': u'М. Новиков', 'name': u'Комитет большинства'}
+
+
 class UnstableMonotoneLinear(object):
     def __init__(self, x_learn, y_learn):
         _, y = nclass_to_nbinary(y_learn)
-        #x = np.swapaxes(x_learn, 1, 2)
+        # x = np.swapaxes(x_learn, 1, 2)
         w = np.random.randn(np.shape(x)[2])
         print "x size", x.shape
         print "y size", y.shape
@@ -348,7 +401,7 @@ class UnstableMonotoneLinear(object):
 if __name__ == '__main__':
     x_learn = np.round(np.random.random([5, 4, 3]) * 5)
     print x_learn
-    y_learn = np.array([1,2,3,4,1])
+    y_learn = np.array([1, 2, 3, 4, 1])
     x_test = np.round(np.random.random([5, 4, 3]) * 5)
 
     c = MonotoneAffine(x_learn, y_learn)
