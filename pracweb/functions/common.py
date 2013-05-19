@@ -12,10 +12,6 @@ class Classifier(object):
         self.clf.fit(x_train, y_train)
 
     def __call__(self, x_val):
-        if x_val.shape[0] < 10:
-            print "predicting-----------------------------------"
-            print x_val
-            print self.clf.predict_proba(x_val)
         return self.clf.predict_proba(x_val)
 
     def describe(self):
@@ -23,4 +19,4 @@ class Classifier(object):
             (k, v)
             for k, v in self.clf.get_params().iteritems()
             if not callable(v))
-              
+

@@ -55,11 +55,11 @@ class NeuralNet(object):
 
 corrector("neuralnet_lubimtceva")
 class NeuralnetLubimtceva(NeuralNet):
-    description = {'author': u'M. Lubimtceva', 'name': u'NeuralNet'}
+    description = {'author': u'М. Любимцева', 'name': u'Нейронная сеть'}
 
 corrector("neuralnet_gavrikov")
 class NeuralnetGavrikov(NeuralNet):
-    description = {'author': u'M. Gavrikov', 'name': u'NeuralNet'}
+    description = {'author': u'М. Гавриков', 'name': u'Нейронная сеть'}
 
 #@corrector("polynomial")
 def corrector_polynomial(x_train, y_train):
