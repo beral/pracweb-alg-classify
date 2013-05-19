@@ -29,8 +29,6 @@ class ProbaCentroid(NearestCentroid):
                              np.reshape(np.repeat(sums, 2),
                                         dists.shape))
 
-
-@classifier('logarithmic_balls')
 class LogarithmicBalls(Classifier):
     description = {
         'name': u'Логарифмические шары',
@@ -40,7 +38,38 @@ class LogarithmicBalls(Classifier):
     def __init__(self, x_train, y_train):
         Classifier.__init__(self, ProbaCentroid(), x_train, y_train)
 
+@classifier('logarithmic_balls_potapenko')
+class LogarithmicBallsPotapenko(LogarithmicBalls):
+    description = {
+        'name': u'Логарифмические шары',
+        'author': u'A. Potapenko',
+    }
 
+@classifier('logarithmic_balls_potapenko')
+class LogarithmicBallsPotapenko(LogarithmicBalls):
+    description = {
+        'name': u'Логарифмические шары',
+        'author': u'A. Potapenko',
+    }
+
+@classifier('logarithmic_balls_potapenko')
+class LogarithmicBallsPotapenko(LogarithmicBalls):
+    description = {
+        'name': u'Логарифмические шары',
+        'author': u'A. Potapenko',
+    }
+@classifier('logarithmic_balls_potapenko')
+class LogarithmicBallsPotapenko(LogarithmicBalls):
+    description = {
+        'name': u'Логарифмические шары',
+        'author': u'A. Potapenko',
+    }
+@classifier('logarithmic_balls_potapenko')
+class LogarithmicBallsPotapenko(LogarithmicBalls):
+    description = {
+        'name': u'Логарифмические шары',
+        'author': u'A. Potapenko',
+    }
 # Parzen in fact
 @classifier('avo')
 class AVO(Classifier):

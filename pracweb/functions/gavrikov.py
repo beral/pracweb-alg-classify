@@ -32,14 +32,7 @@ def nclass_to_nbinary(y):
         flags[i, c] = 2
     return dim, flags
 
-
-@classifier("neuralnet")
 class NeuralNet(object):
-    description = {
-        'name': u'Нейронная сеть',
-        'author': u'М. Гавриков',
-    }
-
     def __init__(self, x_train, y_train):
         dim, y_train2 = nclass_to_nbinary(y_train)
         ds = SupervisedDataSet(2, dim)
@@ -60,6 +53,13 @@ class NeuralNet(object):
             result[i, :] = net.activate(x[i, :])
         return result
 
+corrector("neuralnet_lubimtceva")
+class NeuralnetLubimtceva(NeuralNet):
+    description = {'author': u'M. Lubimtceva', 'name': u'NeuralNet'}
+
+corrector("neuralnet_gavrikov")
+class NeuralnetGavrikov(NeuralNet):
+    description = {'author': u'M. Gavrikov', 'name': u'NeuralNet'}
 
 #@corrector("polynomial")
 def corrector_polynomial(x_train, y_train):
