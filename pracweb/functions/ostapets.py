@@ -29,7 +29,12 @@ class IndependentOptimum(object):
 
     def describe(self):
         return {'algo number': self.oper_number}
-    
+   
+
+@corrector("independent_optimum_gavrikov")
+class IndependentOptimumGavrikov(IndependentOptimum):
+    description = {'author': u'М. Гавриков', 'name': u'Выбирающая независимый оптимум КО'}
+
 @corrector("independent_optimum_ostapets")
 class IndependentOptimumOstapets(IndependentOptimum):
     description = {'author': u'А. Остапец', 'name': u'Выбирающая независимый оптимум КО'}

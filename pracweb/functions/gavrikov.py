@@ -53,11 +53,11 @@ class NeuralNet(object):
             result[i, :] = net.activate(x[i, :])
         return result
 
-corrector("neuralnet_lubimtceva")
+@classifier("neuralnet_lubimtceva")
 class NeuralnetLubimtceva(NeuralNet):
     description = {'author': u'М. Любимцева', 'name': u'Нейронная сеть'}
 
-corrector("neuralnet_gavrikov")
+@classifier("neuralnet_gavrikov")
 class NeuralnetGavrikov(NeuralNet):
     description = {'author': u'М. Гавриков', 'name': u'Нейронная сеть'}
 

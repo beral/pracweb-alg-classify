@@ -250,9 +250,9 @@ class SpecialMonotoneAffine(object):
 	    self.weights *= np.random.random(len(self.weights)) * 0.2 + 0.9        
             self.relearned = True
 
-@corrector("special_monotone_affine_gavrikov")
-class SpecialMonotoneAffineGavrikov(SpecialMonotoneAffine):
-    description = {'author': u'М. Гавриков', 'name': u'Специальная монотонная аффинная КО'}
+#@corrector("special_monotone_affine_gavrikov")
+#class SpecialMonotoneAffineGavrikov(SpecialMonotoneAffine):
+#    description = {'author': u'М. Гавриков', 'name': u'Специальная монотонная аффинная КО'}
 
 @corrector("special_monotone_affine_romov")
 class SpecialMonotoneAffineRomov(SpecialMonotoneAffine):

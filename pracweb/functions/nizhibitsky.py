@@ -110,12 +110,12 @@ class AVOOstap(AVO):
         'author': u'А. Остапец',
     }
 
-@classifier('avo_gavr')
-class AVOGavr(AVO):
-    description = {
-        'name': u'АВО',
-        'author': u'М. Гавриков',
-    }
+#@classifier('avo_gavr')
+#class AVOGavr(AVO):
+#    description = {
+#        'name': u'АВО',
+#        'author': u'М. Гавриков',
+#    }
 
 @classifier('avo_berezin')
 class AVOBerezin(AVO):
